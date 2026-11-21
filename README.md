@@ -8,7 +8,7 @@ is a web page on your own WiFi; no cloud, no app needed.
 **Install / update page:** https://777bdvgp.github.io/RainGauge/
 
 **Contents:** [Features](#features) · [1. Printing the parts](#1-printing-the-parts) ·
-[2. What else you need](#2-what-else-you-need) · [3. The PCB](#3-the-pcb) ·
+[2. Bill of materials](#2-bill-of-materials-bom) · [3. The PCB](#3-the-pcb) ·
 [4. The outside temperature sensor](#4-the-outside-temperature-sensor) ·
 [5. Assembling the gauge](#5-assembling-the-gauge) ·
 [6. Installing the firmware](#6-installing-the-firmware) ·
@@ -76,19 +76,79 @@ Notes:
 - If you change the funnel size, set the new inside diameter on the SETTINGS
   page (*Funnel Diameter*) — the rain in mm is worked out from it.
 
-## 2. What else you need
+## 2. Bill of materials (BOM)
 
-- **PCB RAINMETER_V1** — Eagle files and gerbers in [`PCB/`](PCB) (order from any
-  PCB maker) and the parts in section 3
-- **WEMOS LOLIN S2 Mini** (ESP32-S2)
-- **IR LED** (5 mm) and **IR pickup** (the beam the tipping bucket breaks) — for the
-  IR LED either the small **IR holder PCB** or a printed holder, see
-  [The IR LED](#the-ir-led-two-ways-to-mount-it)
-- **DS18S20** temperature sensor for outside (a second one on the PCB is optional)
-- **Brass heat-set inserts** and matching screws — melted into the base with a
-  soldering iron; the top screws onto the base
-- 3-pin **Dupont** female crimp terminals + housing for the temperature sensor
-- A **5 V DC** power supply
+Quantities for **one** gauge. Part names in `code` are the names printed on the PCB.
+Items marked **❓** are still to be filled in.
+
+### Main PCB — RAINMETER_V1 (values from [`PCB/RAINMETER_V1.sch`](PCB))
+
+| Qty | Part | On the board | Notes |
+|---|---|---|---|
+| 1 | PCB RAINMETER_V1 | — | gerbers: [`PCB/RAINMETER_V1_2026-10-04.zip`](PCB) — order from any PCB maker |
+| 1 | WEMOS LOLIN S2 Mini (ESP32-S2, 4 MB flash, 2 MB PSRAM) | `ESP32 S2 WEMOS MINI` | |
+| 2 | Pin header 2 × 8, 2.54 mm (+ the matching headers on the S2 Mini) | `ESP32 S2 WEMOS MINI` | ❓ male / female: which goes on the PCB |
+| 1 | AMS1117 voltage regulator, SOT-223 | `AMS1` | |
+| 1 | 2N2222 transistor, TO-92 | `IR_LED_TR` | switches the IR LED |
+| 2 | Resistor 10K, SMD 0805 | `R2`, `R8` | |
+| 1 | Resistor 220R, SMD 0805 | `R7` | IR LED current (~16 mA) |
+| 2 | Resistor 4K7, SMD 0805 | `R1`, `R3` | DS18S20 pull-ups |
+| 3 | Capacitor 220 µF, 25 V electrolytic, 2.5 mm pitch, 5 mm diameter | `C1`, `C2`, `C7` | |
+| 1 | Capacitor 0.1 µF ceramic | `C5` | |
+| 1 | Screw terminal 2-pin, 5.08 mm pitch | `5VDC_INPUT` | |
+| 1 | Molex C-Grid connector 2-pin (70553-02) + mating 2-pin housing and crimps | `IR_LED` | cable to the IR LED |
+| 1 | 3-pin header, 2.54 mm | `DS18S20_E` | outside temperature sensor plugs in here |
+| 1 | IR pickup, 5 mm | `IR PICKUP` | ❓ exact type (phototransistor / photodiode, wavelength) — must match the IR LED |
+| 0–1 | DS18S20, TO-92 | `DS18S20_I` | **optional**, inside temperature (technical use only) |
+| 4 | Screws for the PCB corners | — | ❓ size and length |
+
+### IR LED — choose one way
+
+| Qty | Part | Notes |
+|---|---|---|
+| 1 | IR LED, 5 mm | ❓ exact type / wavelength (e.g. 940 nm) — must match the IR pickup |
+| **either** | | |
+| 1 | IR holder PCB RAINMETER_IR_HOLDER + Molex C-Grid 70553-02 connector | gerbers: [`PCB/RAINMETER_IR_HOLDER_2026-11-21.zip`](PCB) |
+| **or** | | |
+| 1 | Printed holder `IR_LED_Support.stl` | no extra PCB; wires soldered directly onto the LED legs |
+| 1 | 2-wire cable to the `IR_LED` connector | ❓ length |
+
+### Outside temperature sensor
+
+| Qty | Part | Notes |
+|---|---|---|
+| 1 | DS18S20, TO-92 | |
+| 3 | Dupont female crimp terminals | one per leg |
+| 1 | Dupont 3-pin housing, 2.54 mm | |
+| 1 | Printed holder `TempSupportPlug.stl` | |
+| 1 | 3-wire cable / extension to `DS18S20_E` | ❓ length, how it leaves the housing |
+
+### Printed parts and finishing
+
+| Qty | Part | Notes |
+|---|---|---|
+| 1 each | `RM_Top`, `RM_Mid`, `RM_Base`, `RainMeterTipper`, `PCBLift`, `TempSupportPlug` (+ `IR_LED_Support` if used) | see section 1 |
+| ~❓ g | ABS filament | ❓ amount for all parts |
+| — | ABS glue (ABS cement / solvent glue) | top + middle section |
+| — | Sandpaper | funnel inside and outside |
+| — | White paint (outdoor) | reflects the sun |
+
+### Mechanical
+
+| Qty | Part | Notes |
+|---|---|---|
+| ❓ | Brass heat-set inserts | ❓ thread size (M3?) — melted into the base |
+| ❓ | Screws for top → base | ❓ size, length |
+| ❓ | Pivot / axle for the tipping bucket | ❓ what is used, size |
+| ❓ | Cable gland / grommet | ❓ for the power and sensor cables (watertight) |
+| ❓ | Mounting hardware (pole / wall bracket) | ❓ |
+
+### Power
+
+| Qty | Part | Notes |
+|---|---|---|
+| 1 | 5 V DC power supply, at least 1 A | into `5VDC_INPUT` (**+** marked) |
+| 1 | 2-wire power cable | ❓ length, outdoor rated |
 
 ## 3. The PCB
 
