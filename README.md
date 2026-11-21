@@ -130,8 +130,8 @@ Items marked **❓** are still to be filled in.
 
 | Qty | Part | Notes |
 |---|---|---|
-| 1 each | `RM_Top`, `RM_Mid`, `RM_Base`, `RainMeterTipper`, `PCBLift`, `TempSupportPlug` (+ `IR_LED_Support` if used) | see section 1 |
-| ~380 g | ABS filament, 1.75 mm (≈ 150 m) | estimated from the STL files with 3 walls + 20 % infill, without supports; solid (100 % infill) would be ~520 g. One 1 kg spool is plenty |
+| 1 each | `RM_Top`, `RM_Mid`, `RM_Base`, `RainMeterTipper`, `PCBLift`, `TempSupportPlug`, `Mount_Template` (+ `IR_LED_Support` if used) | see section 1 |
+| ~390 g | ABS filament, 1.75 mm (≈ 155 m) | estimated from the STL files with 3 walls + 20 % infill, without supports; solid (100 % infill) would be ~520 g. One 1 kg spool is plenty |
 | — | ABS glue (ABS cement / solvent glue) | top + middle section |
 | — | Sandpaper | funnel inside and outside |
 | — | White paint (outdoor) | reflects the sun |
