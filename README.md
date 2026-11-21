@@ -75,7 +75,9 @@ Notes:
 - **PCB RAINMETER_V1** — Eagle files and gerbers in [`PCB/`](PCB) (order from any
   PCB maker) and the parts in section 3
 - **WEMOS LOLIN S2 Mini** (ESP32-S2)
-- **IR LED** and **IR pickup** (the beam the tipping bucket breaks)
+- **IR LED** (5 mm) and **IR pickup** (the beam the tipping bucket breaks) — for the
+  IR LED either the small **IR holder PCB** or a printed holder, see
+  [The IR LED](#the-ir-led-two-ways-to-mount-it)
 - **DS18S20** temperature sensor for outside (a second one on the PCB is optional)
 - **Brass heat-set inserts** and matching screws — melted into the base with a
   soldering iron; the top screws onto the base
@@ -102,6 +104,19 @@ Solder the parts as printed on the board:
 
 The full schematic is in [`PCB/RAINMETER_V1.sch`](PCB) (Eagle).
 Back of the board: [`PCB_BACK.jpg`](docs/pictures/PCB_BACK.jpg).
+
+### The IR LED: two ways to mount it
+
+The IR LED sits opposite the IR pickup, so the tipping bucket breaks the beam
+between them. It connects to the `IR_LED` connector on the main PCB.
+
+- **IR holder PCB** — a small extra board, **36.7 × 22.1 mm**, with only the
+  5 mm IR LED and a 2-pin connector (Molex C-Grid 70553-02) for the cable to the
+  main PCB. Eagle files and gerbers:
+  [`PCB/RAINMETER_IR_HOLDER*`](PCB). Neat, but it is one more PCB to order.
+- **Printed holder (STL) — cheaper alternative (to be completed):** a printed part
+  in which the IR LED is mounted directly, with its wires soldered to a cable to
+  the `IR_LED` connector. No extra PCB needed.
 
 ## 4. The outside temperature sensor
 
@@ -136,9 +151,10 @@ where the holder fits on the gauge)**
 5. Melt the **brass inserts** into the screw holes of the **base** (`RM_Base`) with a
    soldering iron (let them cool before screwing into them).
 6. Mount the PCB on the **PCBLift** in the **base** and screw it down.
-7. Fit the **IR LED** and the **IR pickup** into their holes: the holes in the
-   printed parts line them up with the **tipping bucket**, so the beam is broken
-   by one side of the bucket and open with the other.
+7. Fit the **IR LED** (on its holder PCB or in the printed holder) and the
+   **IR pickup** into their holes: the holes in the printed parts line them up with
+   the **tipping bucket**, so the beam is broken by one side of the bucket and open
+   with the other.
 8. Put the **tipping bucket** on its pivot — it must tip freely both ways.
 9. Connect the IR LED to the `IR_LED` connector, the outside sensor to
    `EXTERNAL DS18S20_E`, and 5 V to `5VDC_INPUT`.
