@@ -11,8 +11,9 @@ is a web page on your own WiFi; no cloud, no app needed.
 [2. Bill of materials](#2-bill-of-materials-bom) · [3. The PCB](#3-the-pcb) ·
 [4. The outside temperature sensor](#4-the-outside-temperature-sensor) ·
 [5. Assembling the gauge](#5-assembling-the-gauge) ·
-[6. Installing the firmware](#6-installing-the-firmware) ·
-[7. Testing and calibrating](#7-testing-and-calibrating) · [Updating](#updating) ·
+[6. Mounting outside](#6-mounting-outside) ·
+[7. Installing the firmware](#7-installing-the-firmware) ·
+[8. Testing and calibrating](#8-testing-and-calibrating) · [Updating](#updating) ·
 [Pin map](#pin-map) · [Building the firmware yourself](#building-the-firmware-yourself) ·
 [Licence](#licence)
 
@@ -142,7 +143,9 @@ Items marked **❓** are still to be filled in.
 | ❓ | Screws for top → base | ❓ size, length |
 | ❓ | Pivot / axle for the tipping bucket | ❓ what is used, size |
 | ❓ | Cable gland / grommet | ❓ for the power and sensor cables (watertight) |
-| ❓ | Mounting hardware (pole / wall bracket) | ❓ |
+| 4 | Bolts + nuts for the 4 mounting holes (Ø 3.0 mm → M3, or drill out for bigger) | ❓ length depends on your frame and springs |
+| 4 | Compression springs, one per bolt | for levelling — ❓ size |
+| 1 | Mounting frame / plate, e.g. angle iron | self-made, see section 6 |
 
 ### Power
 
@@ -247,7 +250,30 @@ where the holder fits on the gauge)**
 10. Fit the glued **top + middle section** onto the **base** and screw it down into
     the brass inserts.
 
-## 6. Installing the firmware
+## 6. Mounting outside
+
+![Bottom of the base - the 4 mounting holes circled in red](docs/pictures/Base_Bottom_Mounting.png)
+
+The gauge stands on **4 mounting holes** in the bottom of the base (circled in red):
+**Ø 3.0 mm**, on a **68.7 × 68.7 mm square** centred on the gauge (97.2 mm across
+the diagonal).
+
+How and where you mount it is up to you — some initiative is needed here. What
+works well:
+
+- Make a small frame or plate yourself, e.g. from **angle iron** across a pole,
+  a wall bracket or a post, and drill 4 holes in it on the same 68.7 mm square.
+- Bolt the gauge onto it **with a spring on each bolt** between the base and the
+  frame. With the springs you can **level** the gauge by turning the 4 nuts (like
+  the bed of a 3D printer): put a spirit level across the top of the funnel and
+  adjust until it is level both ways. A gauge that is not level tips early on one
+  side and late on the other, and the readings are wrong.
+- Place it in the **open**, away from roofs, walls and trees that shelter it from
+  the rain or drip onto it (as a rule of thumb, at least twice the height of the
+  obstacle away), with the funnel at a convenient height to clean it.
+- Leave room for the power cable and the temperature sensor cable underneath.
+
+## 7. Installing the firmware
 
 No PlatformIO needed:
 
@@ -266,7 +292,7 @@ The network can be changed later on the ABOUT page (**WIFI SETUP**). If the gaug
 cannot reach its network for several minutes, the hotspot comes back by itself
 for 5 minutes.
 
-## 7. Testing and calibrating
+## 8. Testing and calibrating
 
 1. Tip the bucket by hand and watch **Bucket Position** on the HOME page:
    it must change between **OPEN** (green) and **BROKEN** (red) on every tip.
