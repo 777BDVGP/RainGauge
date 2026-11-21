@@ -100,7 +100,7 @@ Quantities for **one** gauge. Part names in `code` are the names printed on the 
 | 1 | Screw terminal 2-pin, 5.08 mm pitch | `5VDC_INPUT` | |
 | 1 | Molex C-Grid connector 2-pin (70553-02) + mating 2-pin housing and crimps | `IR_LED` | cable to the IR LED |
 | 1 | 3-pin header, 2.54 mm | `DS18S20_E` | outside temperature sensor plugs in here |
-| 1 | IR pickup: 5 mm **NPN phototransistor, 940 nm, with daylight filter** (black body), e.g. Vishay **BPV11F** | `IR PICKUP` | must match the IR LED (940 nm); see the note under the BOM |
+| 1 | IR pickup: Vishay **BPV11F** — 5 mm NPN phototransistor with daylight filter, for 900–950 nm | `IR PICKUP` | has a **base leg**: not used — only collector and emitter go into the 2 holes (see the note under the BOM) |
 | 0–1 | DS18S20, TO-92 | `DS18S20_I` | **optional**, inside temperature (technical use only) |
 | 4 | Screws **M3 × 10 mm** for the PCB corners | — | into the brass inserts in the base |
 
@@ -108,7 +108,7 @@ Quantities for **one** gauge. Part names in `code` are the names printed on the 
 
 | Qty | Part | Notes |
 |---|---|---|
-| 1 | IR LED: 5 mm, **940 nm**, e.g. Vishay **TSAL6200** (or Everlight IR333-A) | must match the IR pickup; driven at ~16 mA |
+| 1 | IR LED: Vishay **TSAL6200** — 5 mm, 940 nm (alternative if out of stock: Everlight IR333-A, also 940 nm) | driven at ~16 mA |
 | **either** | | |
 | 1 | IR holder PCB RAINMETER_IR_HOLDER + Molex C-Grid 70553-02 connector | gerbers: [`PCB/RAINMETER_IR_HOLDER_2026-11-21.zip`](PCB) |
 | **or** | | |
@@ -157,10 +157,13 @@ Quantities for **one** gauge. Part names in `code` are the names printed on the 
 input is LOW when it receives light — so it must be an **NPN phototransistor**,
 and the LED and pickup must work at the **same wavelength (940 nm)**. A pickup
 with a **daylight filter** (black body) is much less disturbed by sunlight. The
-part numbers above are suggestions; any 5 mm 940 nm IR LED + 940 nm NPN
-phototransistor pair works. Check the polarity in the datasheet: if **Bucket
-Position** on the HOME page never changes when you tip the bucket, turn the
-pickup around.
+recommended pair is the Vishay **TSAL6200** (LED) + **BPV11F** (pickup); any 5 mm
+940 nm IR LED + 940 nm NPN phototransistor pair works too.
+
+The BPV11F has a third leg, the **base** — it is not used: look up in its datasheet
+which leg is the base, cut it off, and solder **collector and emitter** into the two
+`IR PICKUP` holes. If **Bucket Position** on the HOME page never changes when you
+tip the bucket, the pickup is the wrong way round — turn it around.
 
 ## 3. The PCB
 
