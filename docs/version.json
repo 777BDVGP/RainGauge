@@ -1,5 +1,5 @@
 {
-  "version": "1.8.1",
+  "version": "1.8.2",
   "bin": "firmware/raingauge.bin",
-  "notes": "Fix text overlap on the CALIBRATION and NTFY pages"
+  "notes": "Test release - no change in how the gauge works"
 }
