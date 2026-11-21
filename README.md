@@ -65,6 +65,8 @@ Notes:
   helps it stay down.
 - The tipping bucket must swing freely and the same way to both sides: clean
   any strings or blobs from the pivot after printing.
+- After printing, the top and middle are glued, sanded and painted — see
+  [section 5](#5-assembling-the-gauge).
 - If you change the funnel size, set the new inside diameter on the SETTINGS
   page (*Funnel Diameter*) — the rain in mm is worked out from it.
 
@@ -117,17 +119,33 @@ where the holder fits on the gauge)**
 
 **(to be completed)**
 
-1. Melt the **brass inserts** into the screw holes of the printed parts with a
+**The top and middle section (funnel):**
+
+1. **Glue** the **top** (`RM_Top`) and the **middle section** (`RM_Mid`) together
+   with an **ABS glue** (ABS cement / solvent glue for ABS). Let it cure fully.
+2. **Sand** the **outside** and the **inside of the funnel** smooth — a smooth funnel
+   lets the water run down quickly and leaves no drops behind.
+3. **Open the small hole at the bottom of the funnel** properly (drill or file it
+   clean): all the water must run through it into the tipping bucket. A half-closed
+   hole slows the water down or lets it build up in the funnel.
+4. **Paint** it. **White** is best: it reflects the sun, so the gauge (and the
+   temperature inside it) heats up as little as possible.
+
+**The base and the electronics:**
+
+5. Melt the **brass inserts** into the screw holes of the printed parts with a
    soldering iron (let them cool before screwing into them).
-2. Mount the PCB on the **PCBLift** in the **base** and screw it down.
-3. Fit the **IR LED** and the **IR pickup** into their holes: the holes in the
+6. Mount the PCB on the **PCBLift** in the **base** and screw it down.
+7. Fit the **IR LED** and the **IR pickup** into their holes: the holes in the
    printed parts line them up with the **tipping bucket**, so the beam is broken
    by one side of the bucket and open with the other.
-4. Put the **tipping bucket** on its pivot — it must tip freely both ways.
-5. Fit the **middle section** and the **top with the funnel**, and screw them
-   together.
-6. Connect the IR LED to the `IR_LED` connector, the outside sensor to
+8. Put the **tipping bucket** on its pivot — it must tip freely both ways.
+9. Connect the IR LED to the `IR_LED` connector, the outside sensor to
    `EXTERNAL DS18S20_E`, and 5 V to `5VDC_INPUT`.
+
+**Putting it together:**
+
+10. Fit the glued **top + middle section** onto the **base** and screw it down.
 
 ## 6. Installing the firmware
 
