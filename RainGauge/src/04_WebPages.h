@@ -56,17 +56,6 @@ inline char webHeadPage[] PROGMEM = R"=====(
 		h2{font-size:20px;font-weight:800;letter-spacing:1px;color:#0284c7;text-align:center;padding:10px 0 2px}
 		h4{font-size:12px;color:#475569;text-align:center;margin:2px 0}
 		p{text-align:left;margin-left:8px;margin-top:0;margin-bottom:0}
-		ul{list-style-type:none;margin:4px 0;padding:0;overflow:hidden;background:#e0f2fe;border-radius:4px}
-		lh{float:left;border-right:1px solid #bae6fd}
-		lh a{display:block;background:#0284c7;color:#fff;padding:6px 10px;text-decoration:none;font-size:12px;font-weight:700}
-		li{float:left;border-right:1px solid #bae6fd}
-		li a{display:block;color:#0369a1;padding:6px 10px;text-decoration:none;font-size:12px}
-		li a:hover{background:#bae6fd}
-		li a.red{color:#dc2626;background:#fff7ed}
-		li a.red:hover{background:#dc2626;color:#fff}
-		lk{float:left;background:#e0f2fe;font-size:12px}
-		lk a{display:block;color:#0284c7;padding:4px 8px;text-decoration:none}
-		lk a:hover{background:#bae6fd}
 		.nav{display:flex;flex-wrap:wrap;border:1px solid #0284c7;border-radius:6px;overflow:hidden;margin:6px 0}
 		.nav a{flex:1 1 auto;min-width:55px;padding:10px 4px;background:#bae6fd;color:#0369a1;text-align:center;text-decoration:none;font-size:12px;font-weight:700;border-right:1px solid #0284c7;white-space:nowrap}
 		.nav a:last-child{border-right:none}

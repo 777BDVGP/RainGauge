@@ -1,5 +1,5 @@
 {
-  "version": "1.8.0",
+  "version": "1.8.1",
   "bin": "firmware/raingauge.bin",
-  "notes": "First public release: WiFi setup hotspot, update from GitHub"
+  "notes": "Fix text overlap on the CALIBRATION and NTFY pages"
 }
