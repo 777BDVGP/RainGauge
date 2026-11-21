@@ -96,17 +96,21 @@ Notes:
 
 Solder the parts as printed on the board:
 
-| On the board | Part |
+| On the board | Part (from the schematic) |
 |---|---|
-| `5VDC_INPUT` | 2-pin screw terminal — 5 V supply in (**+** marked) |
-| `ESP32 S2 WEMOS MINI` | pin headers for the S2 Mini |
-| `2N2222` / `TR_LED_TR` | 2N2222 transistor that switches the IR LED |
-| `IR_LED` | 2-pin connector to the IR LED |
-| `IR PICKUP` | the IR pickup |
-| `EXTERNAL DS18S20_E` | 3-pin header for the outside temperature sensor |
-| `INTERNAL DS18S20_I` | optional DS18S20 on the board (inside temperature) |
-| `10K`, `10K`, `220R`, `4K7`, `4K7` | resistors (SMD) |
-| `220µF` × 3, `0.1µF` | capacitors |
+| `5VDC_INPUT` | 2-pin screw terminal, 5.08 mm pitch — 5 V supply in (**+** marked) |
+| `AMS1` | AMS1117 voltage regulator (SOT-223) |
+| `ESP32 S2 WEMOS MINI` | pin headers / sockets for the WEMOS LOLIN S2 Mini |
+| `IR_LED_TR` | 2N2222 transistor (TO-92) that switches the IR LED |
+| `IR_LED` | 2-pin Molex C-Grid connector (70553-02) to the IR LED |
+| `IR PICKUP` | 5 mm IR pickup |
+| `DS18S20_E` (EXTERNAL) | 3-pin header for the outside DS18S20 |
+| `DS18S20_I` (INTERNAL) | optional DS18S20 soldered on the board (inside temperature) |
+| `R2`, `R8` | 10K resistors, SMD **0805** |
+| `R7` | 220R resistor, SMD 0805 (IR LED current) |
+| `R1`, `R3` | 4K7 resistors, SMD 0805 (DS18S20 pull-ups) |
+| `C1`, `C2`, `C7` | 220 µF electrolytic capacitors (25 V) |
+| `C5` | 0.1 µF ceramic capacitor |
 
 The full schematic is in [`PCB/RAINMETER_V1.sch`](PCB) (Eagle).
 Back of the board: [`PCB_BACK.jpg`](docs/pictures/PCB_BACK.jpg).
