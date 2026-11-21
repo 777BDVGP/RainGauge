@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rain Gauge Installer</title>
+<script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1f2933;--muted:#5f6b7a;--line:#d9dee5;--acc:#0369a1;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--fg:#e2e8f0;--muted:#94a3b8;--line:#334155;--acc:#38bdf8;--warn:#f59e0b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:760px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.6rem;margin:0 0 4px}
+h2{font-size:1.15rem;margin:28px 0 8px}
+p{margin:6px 0}
+.sub{color:var(--muted);margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:12px 0}
+.card h3{margin:0 0 4px;font-size:1.05rem}
+.ver{font-size:.85rem;color:var(--muted)}
+ol,ul{padding-left:22px}li{margin:4px 0}
+.note{border-left:4px solid var(--warn);background:var(--card);padding:10px 14px;border-radius:6px;margin:16px 0}
+.unsupported{display:none;color:var(--warn);font-weight:600}
+esp-web-install-button[install-unsupported] .unsupported{display:block}
+a{color:var(--acc)}
+code{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0 4px;word-break:break-all}
+.pics{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}
+.pics img{width:100%;border-radius:8px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:.92rem}td,th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left}
+</style>
+</head>
+<body>
+<main>
+<h1>Rain Gauge</h1>
+<p class="sub">Tipping-bucket rain gauge with an IR beam pickup, outside temperature, rainfall reports,
+a daily soil water balance and an "irrigate today?" answer for an irrigation controller &mdash;
+on a WEMOS LOLIN S2 Mini (ESP32-S2). Everything runs in a web page on your own WiFi.</p>
+
+<div class="card">
+<h3>Install on a new S2 Mini</h3>
+<p class="ver">Firmware version: <span id="ver">&hellip;</span></p>
+<esp-web-install-button manifest="manifest.json">
+  <span slot="unsupported" class="unsupported">Use Chrome or Edge on a PC or Mac &mdash; this browser cannot flash over USB.</span>
+</esp-web-install-button>
+<ol>
+<li>Plug the S2 Mini into the PC with a USB <b>data</b> cable and press <b>CONNECT</b> above.</li>
+<li>If no port shows up: hold button <b>0</b>, tap <b>RST</b>, release <b>0</b>, and try again
+    (after the install tap <b>RST</b> once more).</li>
+<li>Choose <b>Erase</b> for a new board, then <b>Install</b> (about a minute).</li>
+</ol>
+</div>
+
+<h2>First start: choose your WiFi</h2>
+<ol>
+<li>The new gauge opens its own WiFi hotspot <b>RainGauge-Setup</b> (the LED blinks fast).</li>
+<li>Connect a phone to it &mdash; the setup page opens by itself (otherwise browse to <code>http://192.168.4.1/</code>).</li>
+<li>Pick your network, type the password, choose <b>Automatic (DHCP)</b> or a <b>fixed IP</b>, press <b>SAVE &amp; RESTART</b>.</li>
+<li>Put the phone back on your normal WiFi and open <code>http://raingauge.local/</code>
+    (or the fixed IP). Use a fixed IP when an irrigation controller must read the gauge.</li>
+</ol>
+<p>Later you can change the network on the <b>ABOUT</b> page (<b>WIFI SETUP</b>). If the gauge cannot reach its
+network for several minutes, the hotspot comes back by itself for 5 minutes.</p>
+
+<h2>Updates</h2>
+<p>On the gauge's <b>ABOUT</b> page: <b>CHECK FOR UPDATE</b> compares its version with the one on this site;
+<b>INSTALL FROM GITHUB</b> downloads and installs it. Settings, calibration and the rain history are kept, and a
+failed download leaves the old firmware running.</p>
+<p>No internet at the gauge? Download <a href="firmware/raingauge.bin">raingauge.bin</a> and use
+<b>UPLOAD &amp; INSTALL</b> on the ABOUT page.</p>
+
+<h2>After installing</h2>
+<ul>
+<li><b>SETTINGS &rarr; CALIBRATION</b>: pour a known amount of water (default 500 ml) slowly into the funnel &mdash;
+    the gauge learns how much water one tip is. Set your funnel diameter first.</li>
+<li><b>SETTINGS &rarr; START FRESH</b> once installed and calibrated: clears the test tips, keeps all settings.</li>
+<li><b>SETTINGS &rarr; Irrigation Answer Method</b>: <i>Water Balance</i>, <i>Simple Rule</i>, or <i>No Irrigation</i>
+    (just a rain meter). Also set your <b>latitude</b>, soil type, root depth and garden factor.</li>
+<li><b>NTFY</b>: free push alerts on your phone (IR sensor fault, high / low outside temperature).</li>
+<li><b>SIMULATION</b>: try everything without the hardware (made-up tips and temperatures, kept apart from real data).</li>
+</ul>
+
+<h2>For an irrigation controller</h2>
+<p><code>GET http://&lt;gauge ip&gt;/api/irrigate</code> returns for example</p>
+<p><code>{"irrigate":false,"reason":"Skip - soil still has water: 8.2 of 22.5 mm used","rain_mm":12.4,"mode":"Water Balance",...}</code></p>
+<p>Any device that can make a web request can read it (several at once). Read only <code>"irrigate"</code>
+(true / false) and skip watering when it is false.</p>
+
+<h2>Hardware</h2>
+<table>
+<tr><th>Part</th><th>GPIO</th><th>Notes</th></tr>
+<tr><td>IR LED (via 2N2222)</td><td>2</td><td>HIGH = on, 220R from 5 V (~16 mA)</td></tr>
+<tr><td>IR pickup</td><td>17</td><td>10k pull-up; LOW = light received, HIGH = beam broken</td></tr>
+<tr><td>DS18S20 outside</td><td>6</td><td>4k7 pull-up</td></tr>
+<tr><td>DS18S20 inside (optional)</td><td>1</td><td>4k7 pull-up, technical use only</td></tr>
+<tr><td>Heartbeat LED</td><td>15</td><td>fast blink = WiFi setup hotspot</td></tr>
+</table>
+<p>PCB (Eagle + gerbers), enclosure STL files and the source code are in the
+<a href="https://github.com/777BDVGP/RainGauge">GitHub repository</a>.</p>
+<div class="pics">
+<img src="pictures/PCB_FRONT.jpg" alt="PCB front"><img src="pictures/PCB_BACK.jpg" alt="PCB back">
+<img src="pictures/MountedSensor1.jpg" alt="Sensor"><img src="pictures/MountedSensor2.jpg" alt="Sensor">
+<img src="pictures/TempSensor.jpg" alt="Temperature sensor"><img src="pictures/TempSensorHousing.jpg" alt="Temperature sensor housing">
+</div>
+
+<div class="note">Licence: CC BY-NC 4.0 &mdash; free for personal use, not for sale. No warranty: check the
+irrigation answer against your own garden before relying on it.</div>
+</main>
+<script>
+fetch('version.json').then(r=>r.json()).then(j=>{document.getElementById('ver').textContent=j.version;}).catch(()=>{});
+</script>
+</body>
+</html>

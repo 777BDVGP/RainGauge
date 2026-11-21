@@ -1,0 +1,5 @@
+{
+  "version": "1.8.0",
+  "bin": "firmware/raingauge.bin",
+  "notes": "First public release: WiFi setup hotspot, update from GitHub"
+}

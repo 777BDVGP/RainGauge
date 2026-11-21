@@ -1,0 +1,27 @@
+Rain Gauge — tipping-bucket rain gauge with irrigation answer
+Copyright (c) 2026 Bennie Vermeulen
+
+This work (firmware, PCB design, enclosure files and documentation) is
+licensed under the Creative Commons Attribution-NonCommercial 4.0
+International License (CC BY-NC 4.0).
+
+You are free to:
+  * Share — copy and redistribute the material in any medium or format
+  * Adapt — remix, transform, and build upon the material
+under the following terms:
+  * Attribution — you must give appropriate credit (name the author and link
+    to the original), provide a link to the license, and indicate if changes
+    were made.
+  * NonCommercial — you may not use the material for commercial purposes
+    (for example, selling the firmware, boards or enclosures, or devices
+    built from them).
+  * No additional restrictions — you may not apply legal terms or
+    technological measures that legally restrict others from doing anything
+    the license permits.
+
+This summary is not the license. Full legal text:
+https://creativecommons.org/licenses/by-nc/4.0/legalcode
+
+The software is provided "as is", without warranty of any kind. The board is
+powered from 230 V mains: building and installing it is at your own risk —
+have mains wiring done or checked by a qualified person.

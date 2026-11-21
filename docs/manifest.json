@@ -1,0 +1,16 @@
+{
+  "name": "Rain Gauge",
+  "version": "1.8.0",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-S2",
+      "parts": [
+        {
+          "path": "firmware/raingauge_full.bin",
+          "offset": 0
+        }
+      ]
+    }
+  ]
+}
