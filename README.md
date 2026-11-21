@@ -62,11 +62,12 @@ top right).
 | [`PCBLift.stl`](Enclosure/PCBLift.stl) | PCB lift / spacer | 44 × 24 × 3 mm | 2 g |
 | [`TempSupportPlug.stl`](Enclosure/TempSupportPlug.stl) | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm | 3 g |
 | [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) | Holder for the IR LED (instead of the IR holder PCB) | 24 × 27.6 × 6 mm | 3 g |
+| [`Mount_Template.stl`](Enclosure/Mount_Template.stl) | Drilling template for the mounting frame (section 6) | 78.7 × 78.7 × 6 mm | 7 g |
 
 Notes:
 
 - The top and middle need a build plate of at least **150 × 150 mm**.
-- Weights are estimates for 3 walls + 20 % infill; all parts together ≈ **380 g** of ABS.
+- Weights are estimates for 3 walls + 20 % infill; all parts together ≈ **390 g** of ABS (with the drilling template).
 - ABS warps and cracks when it cools unevenly: an enclosed printer (or a
   draught-free room) and a heated bed help.
 - `RainMeterTipper.stl` touches the plate with only a small area — a **brim**
@@ -145,7 +146,7 @@ Items marked **❓** are still to be filled in.
 | ❓ | Cable gland / grommet | ❓ for the power and sensor cables (watertight) |
 | 4 | Bolts + nuts for the 4 mounting holes (Ø 3.0 mm → M3, or drill out for bigger) | ❓ length depends on your frame and springs |
 | 4 | Compression springs, one per bolt | for levelling — ❓ size |
-| 1 | Mounting frame / plate, e.g. angle iron | self-made, see section 6 |
+| 1 | Mounting frame / plate, e.g. angle iron | self-made, see section 6 — drill it with `Mount_Template.stl` |
 
 ### Power
 
@@ -263,6 +264,10 @@ works well:
 
 - Make a small frame or plate yourself, e.g. from **angle iron** across a pole,
   a wall bracket or a post, and drill 4 holes in it on the same 68.7 mm square.
+- **Drilling template:** print [`Mount_Template.stl`](Enclosure/Mount_Template.stl)
+  (a flat plate, 78.7 × 78.7 mm, with the 4 holes in exactly the same places as the
+  base). Clamp it on the frame, mark or drill through the holes, and the gauge
+  fits.
 - Bolt the gauge onto it **with a spring on each bolt** between the base and the
   frame. With the springs you can **level** the gauge by turning the 4 nuts (like
   the bed of a 3D printer): put a spirit level across the top of the funnel and
