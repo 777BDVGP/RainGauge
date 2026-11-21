@@ -1,5 +1,5 @@
 {
-  "version": "1.9.0",
+  "version": "1.9.2",
   "bin": "firmware/raingauge.bin",
-  "notes": "Several WiFi networks (SETTINGS - WiFi Networks); WIFI SETUP button removed"
+  "notes": "Learn the router's gateway for fixed-IP networks; WiFi list layout fix"
 }

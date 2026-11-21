@@ -101,10 +101,18 @@ static void netFromJson(JsonVariantConst o, WifiCfg& c){
 	c.pass = o["pass"] | "";
 	c.dhcp = o["dhcp"] | true;
 	if (!c.dhcp){
-		bool ok = c.ip.fromString(o["ip"] | "") && c.gw.fromString(o["gw"] | "") &&
-		          c.sn.fromString(o["sn"] | "") && c.dns.fromString(o["dns"] | "");
-		if (!ok) c.dhcp = true;       // broken fixed-IP entry: fall back to DHCP
+		if (!c.ip.fromString(o["ip"] | "")){ c.dhcp = true; return; }   // no usable fixed IP: DHCP
+		// gw / sn / dns may be missing = 0.0.0.0 = learned from the router at the
+		// first join (needsLearning) and then saved.
+		c.gw.fromString(o["gw"] | "");
+		c.sn.fromString(o["sn"] | "");
+		c.dns.fromString(o["dns"] | "");
 	}
+}
+
+// Fixed IP without a known gateway: learn gateway / subnet / DNS by DHCP first.
+static bool needsLearning(const WifiCfg& c){
+	return !c.dhcp && ((uint32_t)c.gw == 0 || (uint32_t)c.sn == 0);
 }
 
 // Fills out[] (max maxN), returns how many networks are saved.
@@ -138,10 +146,10 @@ static void saveNets(const WifiCfg* nets, int n){
 		o["pass"] = nets[i].pass;
 		o["dhcp"] = nets[i].dhcp;
 		if (!nets[i].dhcp){
-			o["ip"]  = nets[i].ip.toString();
-			o["gw"]  = nets[i].gw.toString();
-			o["sn"]  = nets[i].sn.toString();
-			o["dns"] = nets[i].dns.toString();
+			o["ip"] = nets[i].ip.toString();
+			if ((uint32_t)nets[i].gw)  o["gw"]  = nets[i].gw.toString();    // not yet learned = left out
+			if ((uint32_t)nets[i].sn)  o["sn"]  = nets[i].sn.toString();
+			if ((uint32_t)nets[i].dns) o["dns"] = nets[i].dns.toString();
 		}
 	}
 	File fw = SPIFFS.open(StrWiFiConfig, "w");
@@ -198,8 +206,31 @@ static bool joinSaved(){
 		for (int i = 0; i < n; i++)
 			if (!tried[i] && (best < 0 || rssi[i] > rssi[best])) best = i;
 		tried[best] = true;
+		WifiCfg& c = nets[best];
 		for (int t = 0; t < tries; t++){
-			if (joinWith(nets[best])) { WiFiSource = "saved"; return true; }
+			bool learned = false;
+			if (needsLearning(c)){
+				// Join by DHCP once to learn the router's gateway / subnet / DNS.
+				WifiCfg d = c; d.dhcp = true;
+				if (!joinWith(d)){ dropConnection(); continue; }
+				c.gw = WiFi.gatewayIP();
+				c.sn = WiFi.subnetMask();
+				if ((uint32_t)c.dns == 0) c.dns = WiFi.dnsIP();
+				dropConnection();
+				learned = true;
+			}
+			if (joinWith(c)){
+				WiFiSource = "saved";
+				if (learned){
+					WifiCfg all[WIFI_MAX_NETS];          // store what was learned, same place in the list
+					int m = loadNets(all, WIFI_MAX_NETS);
+					for (int i = 0; i < m; i++) if (all[i].ssid == c.ssid) all[i] = c;
+					saveNets(all, m);
+					SaveGenReport("WiFi: " + c.ssid + " on " + c.ip.toString() + " - gateway " + c.gw.toString() +
+					              " learned from the router and saved");
+				}
+				return true;
+			}
 			dropConnection();
 		}
 	}
@@ -287,7 +318,7 @@ static const char PORTAL_PAGE_2[] PROGMEM = R"HTML(<option value=''>Other (type 
 <label><input type='radio' name='mode' value='fixed' onclick="f(1)"> Fixed IP</label></div>
 <div id='fx' style='display:none'>
 <label>Fixed IP (e.g. 192.168.1.124)</label><input name='ip'>
-<label>Gateway / router (e.g. 192.168.1.1)</label><input name='gw'>
+<label>Gateway / router (empty = learned from the router)</label><input name='gw'>
 <label>Subnet mask</label><input name='sn' value='255.255.255.0'>
 <label>DNS (empty = same as gateway)</label><input name='dns'>
 <p>A fixed IP is needed when another controller (e.g. an irrigation controller) reads the gauge.</p></div>
@@ -322,9 +353,16 @@ static String parseNetForm(AsyncWebServerRequest* req, WifiCfg& c){
 	if (c.ssid.length() == 0 || c.ssid.length() > 32) return "Choose or type a WiFi network name (max 32 characters).";
 	if (c.pass.length() > 63)                         return "The WiFi password can be at most 63 characters.";
 	if (!c.dhcp){
-		String dns = argTrim(req, "dns");
-		if (!c.ip.fromString(argTrim(req, "ip")) || !c.gw.fromString(argTrim(req, "gw")) ||
-		    !c.sn.fromString(argTrim(req, "sn")))  return "Fixed IP, gateway and subnet mask must be like 192.168.1.124.";
+		String gw = argTrim(req, "gw"), sn = argTrim(req, "sn"), dns = argTrim(req, "dns");
+		if (!c.ip.fromString(argTrim(req, "ip"))) return "The fixed IP must be like 192.168.1.124.";
+		if (gw.length() == 0){
+			// No gateway given: learned from the router at the first join (with subnet and DNS).
+			c.gw = c.sn = c.dns = IPAddress();
+			return "";
+		}
+		if (!c.gw.fromString(gw))                 return "The gateway must be like 192.168.1.1 (or leave it empty: learned from the router).";
+		if (sn.length() == 0)                     c.sn = IPAddress(255, 255, 255, 0);
+		else if (!c.sn.fromString(sn))            return "The subnet mask must be like 255.255.255.0.";
 		if (dns.length() == 0)                    c.dns = c.gw;
 		else if (!c.dns.fromString(dns))          return "DNS must be like 192.168.1.1 (or leave it empty).";
 	}
@@ -495,7 +533,7 @@ static const char WN_SECTION_ADD[] PROGMEM = R"HTML(</table>
 <label><input type='radio' name='wn_mode' id='wn_fixed' onclick="wnFix(1)"> Fixed IP</label>
 <div id='wn_fx' style='display:none'>
 <input id='wn_ip' placeholder='fixed IP, e.g. 192.168.1.124' style='width:200px;margin:2px 0'>
-<input id='wn_gw' placeholder='gateway, e.g. 192.168.1.1' style='width:200px;margin:2px 0'>
+<input id='wn_gw' placeholder='gateway (empty = learned from the router)' style='width:200px;margin:2px 0'>
 <input id='wn_sn' value='255.255.255.0' style='width:200px;margin:2px 0'>
 <input id='wn_dns' placeholder='DNS (empty = gateway)' style='width:200px;margin:2px 0'></div>
 <div class='btns'><button class='btn btn-gr' onclick='wnAdd()'>ADD NETWORK</button></div>
@@ -525,9 +563,12 @@ void appendWifiNetsSection(){
 	for (int i = 0; i < n; i++){
 		String s   = htmlEsc(nets[i].ssid);
 		bool   on  = (nets[i].ssid == cur);
-		String row = "<tr><td><b>" + s + "</b>" + (on ? String(" <span style='color:#16a34a;font-size:11px'>(connected)</span>") : String("")) +
-		             "</td><td style='font-size:12px'>" + (nets[i].dhcp ? String("automatic IP") : "fixed " + nets[i].ip.toString()) +
-		             "</td><td><button class='btn btn-rd' style='padding:2px 8px;font-size:11px' data-s='" + s + "' onclick='wnDel(this.dataset.s," +
+		// Own widths: the page CSS gives a row's first cell width:100%, which
+		// squeezed the middle column to one letter per line.
+		String row = "<tr><td style='width:40%'><b>" + s + "</b>" + (on ? String(" <span style='color:#16a34a;font-size:11px'>(connected)</span>") : String("")) +
+		             "</td><td style='font-size:12px;width:45%;text-align:left'>" + (nets[i].dhcp ? String("automatic IP") : "fixed " + nets[i].ip.toString() +
+		              ((uint32_t)nets[i].gw ? String("") : String(" (gateway learned at the first start)"))) +
+		             "</td><td style='width:15%;white-space:nowrap'><button class='btn btn-rd' style='padding:2px 8px;font-size:11px' data-s='" + s + "' onclick='wnDel(this.dataset.s," +
 		             (on ? "1" : "0") + ")'>DELETE</button></td></tr>";
 		appendHtmlStr(row.c_str());
 	}

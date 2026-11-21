@@ -18,3 +18,6 @@
 
 # Built firmware files (tools/export_bin.py) - the published ones are in docs/firmware/
 **/firmware_out/
+
+# Board-specific file system images (WiFi passwords!) - never commit
+**/data/
