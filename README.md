@@ -120,10 +120,11 @@ between them. It connects to the `IR_LED` connector on the main PCB.
   like the other parts). No extra PCB needed:
   1. Push the **legs of the IR LED through the two small holes** in the middle of
      the holder.
-  2. **Solder** the two wires of a cable to the legs on the other side (see the
-     picture below) and plug the cable into the `IR_LED` connector on the main PCB
+  2. **Solder the two wires of a cable directly onto the legs** on the other side
+     and plug the cable into the `IR_LED` connector on the main PCB
      — mind the **+** (the long leg of the LED is +).
-  3. Fit the holder on the wall of the base over the beam hole.
+  3. Mount the holder **as shown in the picture below**: on the wall of the base,
+     over the hole the beam shines through.
 
   ![IR_LED_Support mounted on the base](docs/pictures/IR_MOUNT_Alternative.jpg)
 
