@@ -121,6 +121,11 @@ between them. It connects to the `IR_LED` connector on the main PCB.
   cable to the LED legs and plug it into the `IR_LED` connector on the main PCB
   (mind the **+**). No extra PCB needed.
 
+  ![IR_LED_Support mounted on the base](docs/pictures/IR_MOUNT_Alternative.jpg)
+
+  *The printed holder (grey) on the outside of the wall in the base (blue),
+  over the hole the beam shines through.*
+
 ## 4. The outside temperature sensor
 
 | | |
