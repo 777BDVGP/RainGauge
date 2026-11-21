@@ -87,7 +87,7 @@ Quantities for **one** gauge. Part names in `code` are the names printed on the 
 
 | Qty | Part | On the board | Notes |
 |---|---|---|---|
-| 1 | PCB RAINMETER_V1 | — | gerbers: [`PCB/RAINMETER_V1_2026-10-04.zip`](PCB) — order from any PCB maker |
+| 1 | PCB RAINMETER_V1 | — | gerbers: [`PCB/RAINMETER_V1_2026-10-04.zip`](PCB) — upload to [PCBWay](https://www.pcbway.com/) (the maker I use and recommend) or any other PCB maker; 2 layers, 1.6 mm, default settings |
 | 1 | WEMOS LOLIN S2 Mini (ESP32-S2, 4 MB flash, 2 MB PSRAM) | `ESP32 S2 WEMOS MINI` | |
 | 2 + 2 | Pin headers 2 × 8, 2.54 mm | `ESP32 S2 WEMOS MINI` | they come with the S2 Mini when you order it: **male on the PCB**, **female on the S2 Mini** |
 | 1 | AMS1117 voltage regulator, SOT-223 | `AMS1` | |
@@ -166,6 +166,10 @@ which leg is the base, cut it off, and solder **collector and emitter** into the
 tip the bucket, the pickup is the wrong way round — turn it around.
 
 ## 3. The PCB
+
+**Ordering the boards:** upload the Gerber ZIP from [`PCB/`](PCB) to [PCBWay](https://www.pcbway.com/) —
+I have my own boards made there and can recommend them: easy to order, good quality and quick
+delivery. Default settings (2 layers, 1.6 mm) are fine. Any other PCB maker works too.
 
 ![PCB front](docs/pictures/PCB_FRONT.jpg)
 
