@@ -117,9 +117,13 @@ between them. It connects to the `IR_LED` connector on the main PCB.
   [`PCB/RAINMETER_IR_HOLDER*`](PCB). Neat, but it is one more PCB to order.
 - **Printed holder — cheaper alternative:**
   [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) (24 × 27.6 × 6 mm, printed
-  like the other parts). The IR LED is mounted directly in it; solder a 2-wire
-  cable to the LED legs and plug it into the `IR_LED` connector on the main PCB
-  (mind the **+**). No extra PCB needed.
+  like the other parts). No extra PCB needed:
+  1. Push the **legs of the IR LED through the two small holes** in the middle of
+     the holder.
+  2. **Solder** the two wires of a cable to the legs on the other side (see the
+     picture below) and plug the cable into the `IR_LED` connector on the main PCB
+     — mind the **+** (the long leg of the LED is +).
+  3. Fit the holder on the wall of the base over the beam hole.
 
   ![IR_LED_Support mounted on the base](docs/pictures/IR_MOUNT_Alternative.jpg)
 
