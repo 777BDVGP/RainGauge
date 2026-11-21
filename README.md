@@ -16,7 +16,12 @@ is a web page on your own WiFi; no cloud, no app needed.
 [Pin map](#pin-map) · [Building the firmware yourself](#building-the-firmware-yourself) ·
 [Licence](#licence)
 
-> The build guide grows while the next gauge is built. Steps marked
+> **Who this build guide is for:** someone with some hands-on experience — you can
+> solder (including a few small SMD parts), use a 3D printer and slicer, and work
+> out small details yourself from the photos and STL files. It is not a
+> step-by-step kit manual for a complete beginner.
+>
+> The guide grows while the next gauge is built. Steps marked
 > **(to be completed)** get more detail and photos then.
 
 ## Features
