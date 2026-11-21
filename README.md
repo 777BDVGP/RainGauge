@@ -31,13 +31,13 @@ is a web page on your own WiFi; no cloud, no app needed.
   last tip, outside temperature, irrigation answer.
 - **REPORTS** — rainfall per month / day / hour, temperature records and daily
   min / max, water balance history.
-- **SETTINGS** — funnel size, calibration, tip debounce, IR self-test interval,
+- **SETTINGS** — WiFi networks (list, add, delete), funnel size, calibration, tip debounce, IR self-test interval,
   irrigation method (*Water Balance*, *Simple Rule* or *No Irrigation*), controller
   name, START FRESH (clear data, keep settings), SIMULATION.
 - **NTFY** — free push alerts on your phone (ntfy.sh): IR sensor fault, high / low
   outside temperature; IR sensor test with live beam status.
 - **ABOUT** — network, firmware **update from GitHub** (CHECK / INSTALL) or from an
-  uploaded `.bin`, WiFi setup.
+  uploaded `.bin`.
 - **`/api/irrigate`** — JSON answer any irrigation controller can poll.
 
 ## 1. Printing the parts
@@ -310,9 +310,12 @@ No PlatformIO needed:
 3. Put the phone back on your normal WiFi and open `http://raingauge.local/`
    (or the fixed IP). Use a fixed IP when an irrigation controller must read the gauge.
 
-The network can be changed later on the ABOUT page (**WIFI SETUP**). If the gauge
-cannot reach its network for several minutes, the hotspot comes back by itself
-for 5 minutes.
+**More networks:** SETTINGS → **WiFi Networks** lists the saved networks (the
+passwords are never shown) with **DELETE**, and **ADD NETWORK** for another one. At
+start-up the gauge tries the saved networks in range, strongest first. If none of
+them can be reached for about 5 minutes, the **RainGauge-Setup** hotspot opens by
+itself for 5 minutes, so you can add a network from a phone (it is added to the
+list, not replacing the others).
 
 ## 8. Testing and calibrating
 

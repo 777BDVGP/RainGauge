@@ -127,7 +127,7 @@ void loop(){
 		MaintainWsCommands();          // apply WebSocket commands queued by async_tcp
 		MaintainTempRecordsReset();    // REPORTS "RESET RECORDS" (flag from async_tcp)
 		MaintainStartFresh();          // SETTINGS "START FRESH" — wipe data files + restart (flag from async_tcp)
-		MaintainWifiSetupRequest();    // ABOUT "WIFI SETUP" — restart into the setup hotspot (flag from async_tcp)
+		MaintainWifiNets();            // SETTINGS "WiFi Networks" add / delete (queued by async_tcp)
 		MaintainFwUpdate();            // ABOUT firmware CHECK / INSTALL from GitHub (blocking, by hand) + restart after upload
 		MaintainRain();                // count tips, calibration, log rain per 30 s window
 		MaintainTemperature();         // DS18S20 x2, every 10 s (non-blocking)

@@ -232,6 +232,7 @@ void handleSettings(AsyncWebServerRequest *request){
 	              "<a class='btn btn-or' href='/simulate'>SIMULATION</a>"
 	              "<button class='btn btn-rd' onclick='ButtonReboot()'>REBOOT</button>"
 	              "</div>");
+	appendWifiNetsSection();     // WiFi networks: list, DELETE, ADD (05_WiFi.cpp)
 	// START FRESH — after installation / calibration: wipe the measured data,
 	// keep every setting.  POST (not a link) so nothing can trigger it by loading a URL.
 	appendHtmlStr("<div class='btns'>"

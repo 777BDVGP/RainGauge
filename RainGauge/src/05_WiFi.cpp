@@ -43,7 +43,8 @@ struct KnownNet {
 #define WIFI_HOSTNAME        "raingauge"        // mDNS: http://raingauge.local/
 #define WIFI_SETUP_SSID      "RainGauge-Setup"  // setup hotspot (open, 192.168.4.1)
 #define WIFI_ROUNDS          6                  // full (saved + scan) rounds before the setup hotspot
-#define WIFI_SAVED_TRIES     2                  // attempts on the saved network per round
+#define WIFI_SAVED_TRIES     2                  // attempts per round when only ONE network is saved
+#define WIFI_MAX_NETS        8                  // networks kept in /WiFiConfig.json
 #define WIFI_CONNECT_MS      15000UL            // per join attempt
 #define WIFI_ROUND_GAP_MS    10000UL            // pause between rounds (router may be rebooting)
 #define WIFI_PORTAL_MS       (5UL * 60UL * 1000UL)  // setup hotspot after failed rounds: 5 min, then reboot
@@ -90,37 +91,58 @@ static bool joinWith(const WifiCfg& c){
 	return waitConnected();
 }
 
-// ── /WiFiConfig.json ─────────────────────────────────────────────────────────
+// ── /WiFiConfig.json — a LIST of networks ────────────────────────────────────
+// { "nets": [ { ssid, pass, dhcp, ip, gw, sn, dns }, ... ] }   newest first.
+// The 1.8.x file held one network as a plain object — still read, and
+// written back as a list the next time anything is saved.
 
-static bool loadCfg(WifiCfg& c){
-	File fr = SPIFFS.open(StrWiFiConfig, "r");
-	if (!fr) return false;
-	StaticJsonDocument<512> doc;
-	DeserializationError err = deserializeJson(doc, fr);
-	fr.close();
-	if (err) return false;
-	c.ssid = doc["ssid"] | "";
-	c.pass = doc["pass"] | "";
-	c.dhcp = doc["dhcp"] | true;
-	if (c.ssid.length() == 0) return false;
+static void netFromJson(JsonVariantConst o, WifiCfg& c){
+	c.ssid = o["ssid"] | "";
+	c.pass = o["pass"] | "";
+	c.dhcp = o["dhcp"] | true;
 	if (!c.dhcp){
-		bool ok = c.ip.fromString(doc["ip"] | "") && c.gw.fromString(doc["gw"] | "") &&
-		          c.sn.fromString(doc["sn"] | "") && c.dns.fromString(doc["dns"] | "");
+		bool ok = c.ip.fromString(o["ip"] | "") && c.gw.fromString(o["gw"] | "") &&
+		          c.sn.fromString(o["sn"] | "") && c.dns.fromString(o["dns"] | "");
 		if (!ok) c.dhcp = true;       // broken fixed-IP entry: fall back to DHCP
 	}
-	return true;
 }
 
-static void saveCfg(const WifiCfg& c){
-	StaticJsonDocument<512> doc;
-	doc["ssid"] = c.ssid;
-	doc["pass"] = c.pass;
-	doc["dhcp"] = c.dhcp;
-	if (!c.dhcp){
-		doc["ip"]  = c.ip.toString();
-		doc["gw"]  = c.gw.toString();
-		doc["sn"]  = c.sn.toString();
-		doc["dns"] = c.dns.toString();
+// Fills out[] (max maxN), returns how many networks are saved.
+static int loadNets(WifiCfg* out, int maxN){
+	File fr = SPIFFS.open(StrWiFiConfig, "r");
+	if (!fr) return 0;
+	DynamicJsonDocument doc(4096);
+	DeserializationError err = deserializeJson(doc, fr);
+	fr.close();
+	if (err) return 0;
+	int n = 0;
+	if (doc["nets"].is<JsonArrayConst>()){
+		for (JsonVariantConst o : doc["nets"].as<JsonArrayConst>()){
+			if (n >= maxN) break;
+			netFromJson(o, out[n]);
+			if (out[n].ssid.length()) n++;
+		}
+	} else if (doc["ssid"].is<const char*>()){          // old single-network file
+		netFromJson(doc.as<JsonVariantConst>(), out[0]);
+		if (out[0].ssid.length()) n = 1;
+	}
+	return n;
+}
+
+static void saveNets(const WifiCfg* nets, int n){
+	DynamicJsonDocument doc(4096);
+	JsonArray a = doc.createNestedArray("nets");
+	for (int i = 0; i < n; i++){
+		JsonObject o = a.createNestedObject();
+		o["ssid"] = nets[i].ssid;
+		o["pass"] = nets[i].pass;
+		o["dhcp"] = nets[i].dhcp;
+		if (!nets[i].dhcp){
+			o["ip"]  = nets[i].ip.toString();
+			o["gw"]  = nets[i].gw.toString();
+			o["sn"]  = nets[i].sn.toString();
+			o["dns"] = nets[i].dns.toString();
+		}
 	}
 	File fw = SPIFFS.open(StrWiFiConfig, "w");
 	if (!fw) { SaveGenReport F("WiFi: could not write /WiFiConfig.json"); return; }
@@ -129,16 +151,58 @@ static void saveCfg(const WifiCfg& c){
 	SPIFFS.remove(StrWiFiDefault);   // the old (pre-1.8) file is not used any more
 }
 
-// ── Step 1: saved network ────────────────────────────────────────────────────
+// Add a network (newest first).  The same SSID again replaces its entry;
+// with a full list the oldest entry drops off.
+static void addNet(const WifiCfg& c){
+	WifiCfg nets[WIFI_MAX_NETS + 1];
+	int n = loadNets(nets + 1, WIFI_MAX_NETS);
+	nets[0] = c;
+	int k = 1;
+	for (int i = 1; i <= n; i++)
+		if (nets[i].ssid != c.ssid && k < WIFI_MAX_NETS) nets[k++] = nets[i];
+	saveNets(nets, k);
+}
+
+// Remove a network by SSID.  Returns false when it was not in the list.
+static bool deleteNet(const String& ssid){
+	WifiCfg nets[WIFI_MAX_NETS];
+	int n = loadNets(nets, WIFI_MAX_NETS), k = 0;
+	for (int i = 0; i < n; i++) if (nets[i].ssid != ssid) nets[k++] = nets[i];
+	if (k == n) return false;
+	saveNets(nets, k);
+	return true;
+}
+
+// ── Step 1: saved networks ───────────────────────────────────────────────────
+// Scan, then try the saved networks that are in range, strongest first, and
+// after them the ones not seen (hidden SSIDs, weak signal).  With a single
+// saved network it gets WIFI_SAVED_TRIES attempts, otherwise one each.
 
 static bool joinSaved(){
-	WifiCfg c;
-	if (!loadCfg(c)) return false;
-	for (int i = 0; i < WIFI_SAVED_TRIES; i++) {
-		if (i > 0) dropConnection();
-		if (joinWith(c)) { WiFiSource = "saved"; return true; }
+	WifiCfg nets[WIFI_MAX_NETS];
+	int n = loadNets(nets, WIFI_MAX_NETS);
+	if (n == 0) return false;
+
+	int rssi[WIFI_MAX_NETS];
+	for (int i = 0; i < n; i++) rssi[i] = INT_MIN;
+	int found = WiFi.scanNetworks();
+	for (int j = 0; j < found; j++)
+		for (int i = 0; i < n; i++)
+			if (WiFi.SSID(j) == nets[i].ssid && WiFi.RSSI(j) > rssi[i]) rssi[i] = WiFi.RSSI(j);
+	WiFi.scanDelete();
+
+	bool tried[WIFI_MAX_NETS] = { false };
+	int tries = (n == 1) ? WIFI_SAVED_TRIES : 1;
+	for (int k = 0; k < n; k++){
+		int best = -1;                       // in range first (strongest), then the rest in list order
+		for (int i = 0; i < n; i++)
+			if (!tried[i] && (best < 0 || rssi[i] > rssi[best])) best = i;
+		tried[best] = true;
+		for (int t = 0; t < tries; t++){
+			if (joinWith(nets[best])) { WiFiSource = "saved"; return true; }
+			dropConnection();
+		}
 	}
-	dropConnection();
 	return false;
 }
 
@@ -180,9 +244,9 @@ static bool scanAndJoinKnown(){
 		dropConnection();
 
 		if (joinWith(c)) {
-			saveCfg(c);
+			addNet(c);
 			WiFiSource = "known network";
-			SaveGenReport("WiFi: joined " + c.ssid + " on " + c.ip.toString() + " - saved");
+			SaveGenReport("WiFi: joined " + c.ssid + " on " + c.ip.toString() + " - added to the saved networks");
 			return true;
 		}
 		dropConnection();
@@ -247,21 +311,29 @@ static String argTrim(AsyncWebServerRequest* req, const char* name){
 	return v;
 }
 
-static void portalSave(AsyncWebServerRequest* req){
-	WifiCfg c;
+// Network from a form (setup hotspot page and SETTINGS "ADD NETWORK"):
+// ssid (or ssid2 typed by hand), pass, mode = dhcp / fixed, ip, gw, sn, dns.
+// Returns "" when fine, otherwise the reason.
+static String parseNetForm(AsyncWebServerRequest* req, WifiCfg& c){
 	c.ssid = argTrim(req, "ssid2");
 	if (c.ssid.length() == 0) c.ssid = argTrim(req, "ssid");
 	c.pass = req->hasArg("pass") ? req->arg("pass") : String();
 	c.dhcp = argTrim(req, "mode") != "fixed";
-	String err;
-	if (c.ssid.length() == 0) err = "Choose or type a WiFi network.";
-	if (!c.dhcp && err.length() == 0){
+	if (c.ssid.length() == 0 || c.ssid.length() > 32) return "Choose or type a WiFi network name (max 32 characters).";
+	if (c.pass.length() > 63)                         return "The WiFi password can be at most 63 characters.";
+	if (!c.dhcp){
 		String dns = argTrim(req, "dns");
 		if (!c.ip.fromString(argTrim(req, "ip")) || !c.gw.fromString(argTrim(req, "gw")) ||
-		    !c.sn.fromString(argTrim(req, "sn")))  err = "Fixed IP, gateway and subnet mask must be like 192.168.1.124.";
-		else if (dns.length() == 0)               c.dns = c.gw;
-		else if (!c.dns.fromString(dns))           err = "DNS must be like 192.168.1.1 (or leave it empty).";
+		    !c.sn.fromString(argTrim(req, "sn")))  return "Fixed IP, gateway and subnet mask must be like 192.168.1.124.";
+		if (dns.length() == 0)                    c.dns = c.gw;
+		else if (!c.dns.fromString(dns))          return "DNS must be like 192.168.1.1 (or leave it empty).";
 	}
+	return "";
+}
+
+static void portalSave(AsyncWebServerRequest* req){
+	WifiCfg c;
+	String err = parseNetForm(req, c);
 	if (err.length()){
 		req->send(200, "text/html", "<meta name='viewport' content='width=device-width,initial-scale=1'>"
 		          "<p style='font-family:sans-serif;color:#b91c1c'>" + err + "</p><p><a href='/'>Back</a></p>");
@@ -324,8 +396,8 @@ static void runSetupPortal(uint32_t timeoutMs, const String& why){
 		dns.processNextRequest();
 		if (pendingSave){
 			delay(1500);                  // let the "Saved" page reach the phone
-			saveCfg(pendingCfg);
-			SaveGenReport("WiFi: setup saved - network " + pendingCfg.ssid +
+			addNet(pendingCfg);
+			SaveGenReport("WiFi: setup added network " + pendingCfg.ssid +
 			              (pendingCfg.dhcp ? String(" (DHCP)") : " on " + pendingCfg.ip.toString()));
 			ESP.restart();
 		}
@@ -350,12 +422,6 @@ bool SetupWiFi() {
 	WiFi.setHostname(WIFI_HOSTNAME);
 	WiFi.mode(WIFI_STA);
 	WiFi.setSleep(false);
-
-	// ABOUT "WIFI SETUP" button: restart straight into the setup hotspot.
-	if (SPIFFS.exists(StrWiFiSetupFlag)){
-		SPIFFS.remove(StrWiFiSetupFlag);
-		runSetupPortal(WIFI_PORTAL_MS, "requested on the ABOUT page");
-	}
 
 	// Brand-new gauge (public firmware, nothing saved): nothing to try — set up.
 	if (!SPIFFS.exists(StrWiFiConfig) && KNOWN_NET_COUNT == 0)
@@ -387,23 +453,117 @@ bool SetupWiFi() {
 	return false;   // not reached — the portal always reboots
 }
 
-// ── ABOUT "WIFI SETUP" button ────────────────────────────────────────────────
-// POST /wifisetup (async_tcp) only raises the flag; MaintainWifiSetupRequest()
-// (loop) writes /WiFiSetup.flag and restarts into the setup hotspot.
+// =============================================================================
+// SETTINGS page — "WiFi Networks": list (never the passwords), DELETE, ADD
+// =============================================================================
+// The page is built in async_tcp and only READS the file.  ADD / DELETE
+// (POST /wifinet/add, /wifinet/delete) copy the request into one pending slot
+// and raise a flag; MaintainWifiNets() (loop) writes the file.  Changes are
+// used at the next start (or when the current network is lost).
 
-static volatile bool wifiSetupRequested = false;
+static WifiCfg       wnPendingAdd;
+static String        wnPendingDel;
+static volatile bool wnAddReq = false, wnDelReq = false;
 
-void handleWifiSetupRequest(AsyncWebServerRequest *request){
-	wifiSetupRequested = true;
-	request->send(200, "text/plain", "OK");
+static String htmlEsc(const String& s){
+	String o; o.reserve(s.length() + 8);
+	for (size_t i = 0; i < s.length(); i++){
+		char c = s[i];
+		if      (c == '&')  o += "&amp;";
+		else if (c == '<')  o += "&lt;";
+		else if (c == '>')  o += "&gt;";
+		else if (c == '"')  o += "&quot;";
+		else if (c == 39)   o += "&#39;";
+		else                o += c;
+	}
+	return o;
 }
 
-void MaintainWifiSetupRequest(){
-	if (!wifiSetupRequested) return;
-	wifiSetupRequested = false;
-	File f = SPIFFS.open(StrWiFiSetupFlag, "w");
-	if (f){ f.print("1"); f.close(); }
-	SaveGenReport F("WiFi: restarting into the setup hotspot (ABOUT page)");
-	delay(300);
-	ESP.restart();
+static const char WN_SECTION_TOP[] PROGMEM = R"HTML(
+<div id='wifinets' style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:16px 0 4px'>WIFI NETWORKS</div>
+<p style='color:#475569;font-size:12px;padding:0 8px 4px'>At start-up the gauge tries these networks, the strongest one in range first.
+If none of them can be reached for about 5 minutes, it opens the hotspot <b>RainGauge-Setup</b>: connect a phone to it
+and add a network there. Changes are used at the next start. Passwords are never shown.</p>
+<table>)HTML";
+
+static const char WN_SECTION_ADD[] PROGMEM = R"HTML(</table>
+<div class='noupd' style='margin:8px 0;padding:8px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px'>
+<b>Add a network</b> (the same name again replaces that entry)<br>
+<input id='wn_ssid' placeholder='WiFi network name' style='width:200px;margin:4px 0'>
+<input id='wn_pass' type='password' placeholder='password (empty = open network)' style='width:200px;margin:4px 0'><br>
+<label><input type='radio' name='wn_mode' id='wn_dhcp' checked onclick="wnFix(0)"> Automatic IP (DHCP)</label>
+<label><input type='radio' name='wn_mode' id='wn_fixed' onclick="wnFix(1)"> Fixed IP</label>
+<div id='wn_fx' style='display:none'>
+<input id='wn_ip' placeholder='fixed IP, e.g. 192.168.1.124' style='width:200px;margin:2px 0'>
+<input id='wn_gw' placeholder='gateway, e.g. 192.168.1.1' style='width:200px;margin:2px 0'>
+<input id='wn_sn' value='255.255.255.0' style='width:200px;margin:2px 0'>
+<input id='wn_dns' placeholder='DNS (empty = gateway)' style='width:200px;margin:2px 0'></div>
+<div class='btns'><button class='btn btn-gr' onclick='wnAdd()'>ADD NETWORK</button></div>
+<span id='wn_msg' style='font-size:12px'></span></div>
+<script>
+function wnFix(x){document.getElementById('wn_fx').style.display=x?'block':'none';}
+function wnPost(u,b){var m=document.getElementById('wn_msg');
+ fetch(u,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:b})
+ .then(function(r){return r.text();}).then(function(t){m.textContent=t;if(t.indexOf('OK')==0)setTimeout(function(){location.reload();},1200);})
+ .catch(function(){m.textContent='No answer from the gauge';});}
+function wnAdd(){var v=function(i){return encodeURIComponent(document.getElementById(i).value.trim());};
+ var b='ssid='+v('wn_ssid')+'&pass='+encodeURIComponent(document.getElementById('wn_pass').value)+
+ '&mode='+(document.getElementById('wn_fixed').checked?'fixed':'dhcp')+'&ip='+v('wn_ip')+'&gw='+v('wn_gw')+'&sn='+v('wn_sn')+'&dns='+v('wn_dns');
+ wnPost('/wifinet/add',b);}
+function wnDel(s,cur){if(!confirm('Delete the WiFi network '+s+'?'+(cur?' The gauge is connected to it now: it stays connected until the next start, then tries the other networks.':'')))return;
+ wnPost('/wifinet/delete','ssid='+encodeURIComponent(s));}
+</script>
+)HTML";
+
+// Appends the section to the page being built (SETTINGS, async_tcp — read only).
+void appendWifiNetsSection(){
+	WifiCfg nets[WIFI_MAX_NETS];
+	int n = loadNets(nets, WIFI_MAX_NETS);
+	appendHtmlStr(WN_SECTION_TOP);
+	String cur = WiFi.SSID();
+	if (n == 0) appendHtmlStr("<tr><td colspan='3'>(no networks saved)</td></tr>");
+	for (int i = 0; i < n; i++){
+		String s   = htmlEsc(nets[i].ssid);
+		bool   on  = (nets[i].ssid == cur);
+		String row = "<tr><td><b>" + s + "</b>" + (on ? String(" <span style='color:#16a34a;font-size:11px'>(connected)</span>") : String("")) +
+		             "</td><td style='font-size:12px'>" + (nets[i].dhcp ? String("automatic IP") : "fixed " + nets[i].ip.toString()) +
+		             "</td><td><button class='btn btn-rd' style='padding:2px 8px;font-size:11px' data-s='" + s + "' onclick='wnDel(this.dataset.s," +
+		             (on ? "1" : "0") + ")'>DELETE</button></td></tr>";
+		appendHtmlStr(row.c_str());
+	}
+	appendHtmlStr(WN_SECTION_ADD);
+}
+
+void handleWifiNetAdd(AsyncWebServerRequest *request){
+	if (wnAddReq || wnDelReq){ request->send(200, "text/plain", "Busy - try again"); return; }
+	WifiCfg c;
+	String err = parseNetForm(request, c);
+	if (err.length()){ request->send(200, "text/plain", err); return; }
+	wnPendingAdd = c;
+	wnAddReq = true;
+	request->send(200, "text/plain", "OK - " + c.ssid + " added");
+}
+
+void handleWifiNetDelete(AsyncWebServerRequest *request){
+	if (wnAddReq || wnDelReq){ request->send(200, "text/plain", "Busy - try again"); return; }
+	String s = argTrim(request, "ssid");
+	if (s.length() == 0){ request->send(200, "text/plain", "No network given"); return; }
+	wnPendingDel = s;
+	wnDelReq = true;
+	request->send(200, "text/plain", "OK - " + s + " deleted");
+}
+
+// Called every 10 ms from loop().
+void MaintainWifiNets(){
+	if (wnAddReq){
+		addNet(wnPendingAdd);
+		SaveGenReport("WiFi: network " + wnPendingAdd.ssid + " added on SETTINGS" +
+		              (wnPendingAdd.dhcp ? String(" (automatic IP)") : " (fixed " + wnPendingAdd.ip.toString() + ")"));
+		wnPendingAdd = WifiCfg();
+		wnAddReq = false;
+	}
+	if (wnDelReq){
+		if (deleteNet(wnPendingDel)) SaveGenReport("WiFi: network " + wnPendingDel + " deleted on SETTINGS");
+		wnDelReq = false;
+	}
 }

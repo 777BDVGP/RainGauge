@@ -188,6 +188,7 @@ inline char webSocketScript[] PROGMEM = R"=====(
 	function UpdatePage() {
 		const jsonObject = {};
 		for (const input of document.querySelectorAll("input")) {
+			if (input.closest(".noupd")) continue;   // e.g. SETTINGS "Add a network" (own button, not UPDATE)
 			jsonObject[input.id] = (input.type === "checkbox") ? (input.checked ? "true" : "false") : input.value;
 		}
 		for (const select of document.querySelectorAll("select")) {
@@ -305,7 +306,7 @@ inline char webSocketScript[] PROGMEM = R"=====(
 // Tag emitted by every page instead of inlining webSocketScript.  The ?v=
 // number is the cache-buster — bump it whenever webSocketScript changes so
 // browsers re-fetch /wss.js.
-#define webScriptTag "<script src='/wss.js?v=9'></script>\n"
+#define webScriptTag "<script src='/wss.js?v=10'></script>\n"
 
 inline char webHTMLEnd[] PROGMEM = R"=====(
 </body>

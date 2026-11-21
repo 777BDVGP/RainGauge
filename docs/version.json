@@ -1,5 +1,5 @@
 {
-  "version": "1.8.2",
+  "version": "1.9.0",
   "bin": "firmware/raingauge.bin",
-  "notes": "Test release - no change in how the gauge works"
+  "notes": "Several WiFi networks (SETTINGS - WiFi Networks); WIFI SETUP button removed"
 }

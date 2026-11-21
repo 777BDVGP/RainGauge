@@ -18,7 +18,6 @@
 	inline String StrGeneralLog     = F("/GeneralLog.txt");
 	inline String StrWiFiDefault    = F("/WiFiDefault.json");   // OLD last-good-network file (removed once /WiFiConfig.json exists)
 	inline String StrWiFiConfig     = F("/WiFiConfig.json");    // WiFi network + password + IP (05_WiFi.cpp) — never shown on FILES
-	inline String StrWiFiSetupFlag  = F("/WiFiSetup.flag");     // present at boot -> start the WiFi setup hotspot
 
 	// The WiFi password file is never listed, viewed or downloaded.
 	inline bool IsProtectedFile(String path){ if (!path.startsWith("/")) path = "/" + path; return path == StrWiFiConfig; }

@@ -224,7 +224,8 @@ void AddRoutes(){
 	server.on("/api/irrigate", handleApiIrrigate); // JSON answer for the irrigation controller (19_Irrigation.cpp)
 	server.on("/resettemprecords", handleResetTempRecords); // REPORTS button (21_TempHistory.cpp)
 	server.on("/startfresh", HTTP_POST, handleStartFresh);  // SETTINGS "START FRESH" (12_Settings.cpp)
-	server.on("/wifisetup",  HTTP_POST, handleWifiSetupRequest); // ABOUT "WIFI SETUP" (05_WiFi.cpp)
+	server.on("/wifinet/add",    HTTP_POST, handleWifiNetAdd);    // SETTINGS "WiFi Networks" (05_WiFi.cpp)
+	server.on("/wifinet/delete", HTTP_POST, handleWifiNetDelete);
 	server.on("/fwcheck",    HTTP_POST, handleFwCheck);          // ABOUT "CHECK FOR UPDATE" (22_Update.cpp)
 	server.on("/fwinstall",  HTTP_POST, handleFwInstall);        // ABOUT "INSTALL FROM GITHUB"
 	server.on("/update",     HTTP_POST, handleFwUploadDone, handleFwUploadData);  // ABOUT ".bin upload"

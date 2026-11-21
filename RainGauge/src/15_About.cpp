@@ -283,11 +283,7 @@ void handleAbout(AsyncWebServerRequest *request) {
     appendHtmlStr(webScriptTag);
     appendHtmlBuf(PageBuf, getPageBufLen());
     webRebootButton();
-    // WiFi setup: restart into the "RainGauge-Setup" hotspot (05_WiFi.cpp).
-    appendHtmlStr("<div class='btns'><button class='btn btn-or' onclick=\"if(confirm("
-                  "'Restart into WiFi setup?\\n\\nThe gauge leaves your WiFi and opens the hotspot RainGauge-Setup.\\n"
-                  "Connect a phone to it to choose the network (5 minutes, then it returns to the old setting).'))"
-                  "fetch('/wifisetup',{method:'POST'})\">WIFI SETUP</button></div>");
+    // (WiFi networks are managed on the SETTINGS page — 05_WiFi.cpp)
     appendFwUpdateBlock();      // 22_Update.cpp
     buildProjectInfoDiv();
     appendHtmlStr(webHTMLEnd);

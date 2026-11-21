@@ -101,8 +101,10 @@ bool GetIrLed();
 // ─── 05_WiFi.cpp ──────────────────────────────────────────────────────────────
 bool   SetupWiFi();
 String WiFiHostName();
-void   handleWifiSetupRequest(AsyncWebServerRequest *request);
-void   MaintainWifiSetupRequest();
+void   appendWifiNetsSection();
+void   handleWifiNetAdd(AsyncWebServerRequest *request);
+void   handleWifiNetDelete(AsyncWebServerRequest *request);
+void   MaintainWifiNets();
 
 // ─── 22_Update.cpp ────────────────────────────────────────────────────────────
 void   handleFwCheck(AsyncWebServerRequest* r);

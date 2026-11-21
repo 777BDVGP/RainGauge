@@ -58,8 +58,9 @@ on a WEMOS LOLIN S2 Mini (ESP32-S2). Everything runs in a web page on your own W
 <li>Put the phone back on your normal WiFi and open <code>http://raingauge.local/</code>
     (or the fixed IP). Use a fixed IP when an irrigation controller must read the gauge.</li>
 </ol>
-<p>Later you can change the network on the <b>ABOUT</b> page (<b>WIFI SETUP</b>). If the gauge cannot reach its
-network for several minutes, the hotspot comes back by itself for 5 minutes.</p>
+<p>More networks (e.g. at another place): <b>SETTINGS &rarr; WiFi Networks</b> lists them with <b>DELETE</b> and
+<b>ADD NETWORK</b> (passwords are never shown). The gauge tries the saved networks in range, strongest first. If none
+can be reached for several minutes, the hotspot opens by itself for 5 minutes, so you can add one from a phone.</p>
 
 <h2>Updates</h2>
 <p>On the gauge's <b>ABOUT</b> page: <b>CHECK FOR UPDATE</b> compares its version with the one on this site;
