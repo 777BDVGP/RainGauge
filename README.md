@@ -82,7 +82,6 @@ Notes:
 ## 2. Bill of materials (BOM)
 
 Quantities for **one** gauge. Part names in `code` are the names printed on the PCB.
-Items marked **❓** are still to be filled in.
 
 ### Main PCB — RAINMETER_V1 (values from [`PCB/RAINMETER_V1.sch`](PCB))
 
@@ -90,7 +89,7 @@ Items marked **❓** are still to be filled in.
 |---|---|---|---|
 | 1 | PCB RAINMETER_V1 | — | gerbers: [`PCB/RAINMETER_V1_2026-10-04.zip`](PCB) — order from any PCB maker |
 | 1 | WEMOS LOLIN S2 Mini (ESP32-S2, 4 MB flash, 2 MB PSRAM) | `ESP32 S2 WEMOS MINI` | |
-| 2 | Pin header 2 × 8, 2.54 mm (+ the matching headers on the S2 Mini) | `ESP32 S2 WEMOS MINI` | ❓ male / female: which goes on the PCB |
+| 2 + 2 | Pin headers 2 × 8, 2.54 mm | `ESP32 S2 WEMOS MINI` | they come with the S2 Mini when you order it: **male on the PCB**, **female on the S2 Mini** |
 | 1 | AMS1117 voltage regulator, SOT-223 | `AMS1` | |
 | 1 | 2N2222 transistor, TO-92 | `IR_LED_TR` | switches the IR LED |
 | 2 | Resistor 10K, SMD 0805 | `R2`, `R8` | |
@@ -101,7 +100,7 @@ Items marked **❓** are still to be filled in.
 | 1 | Screw terminal 2-pin, 5.08 mm pitch | `5VDC_INPUT` | |
 | 1 | Molex C-Grid connector 2-pin (70553-02) + mating 2-pin housing and crimps | `IR_LED` | cable to the IR LED |
 | 1 | 3-pin header, 2.54 mm | `DS18S20_E` | outside temperature sensor plugs in here |
-| 1 | IR pickup, 5 mm | `IR PICKUP` | ❓ exact type (phototransistor / photodiode, wavelength) — must match the IR LED |
+| 1 | IR pickup: 5 mm **NPN phototransistor, 940 nm, with daylight filter** (black body), e.g. Vishay **BPV11F** | `IR PICKUP` | must match the IR LED (940 nm); see the note under the BOM |
 | 0–1 | DS18S20, TO-92 | `DS18S20_I` | **optional**, inside temperature (technical use only) |
 | 4 | Screws **M3 × 10 mm** for the PCB corners | — | into the brass inserts in the base |
 
@@ -109,12 +108,12 @@ Items marked **❓** are still to be filled in.
 
 | Qty | Part | Notes |
 |---|---|---|
-| 1 | IR LED, 5 mm | ❓ exact type / wavelength (e.g. 940 nm) — must match the IR pickup |
+| 1 | IR LED: 5 mm, **940 nm**, e.g. Vishay **TSAL6200** (or Everlight IR333-A) | must match the IR pickup; driven at ~16 mA |
 | **either** | | |
 | 1 | IR holder PCB RAINMETER_IR_HOLDER + Molex C-Grid 70553-02 connector | gerbers: [`PCB/RAINMETER_IR_HOLDER_2026-11-21.zip`](PCB) |
 | **or** | | |
 | 1 | Printed holder `IR_LED_Support.stl` | no extra PCB; wires soldered directly onto the LED legs |
-| 1 | 2-wire cable to the `IR_LED` connector | ❓ length |
+| 2 | Wires, 200 mm, different colours | from the IR LED to the `IR_LED` connector |
 
 ### Outside temperature sensor
 
@@ -124,7 +123,7 @@ Items marked **❓** are still to be filled in.
 | 3 | Dupont female crimp terminals | one per leg |
 | 1 | Dupont 3-pin housing, 2.54 mm | |
 | 1 | Printed holder `TempSupportPlug.stl` | |
-| 1 | 3-wire cable / extension to `DS18S20_E` | ❓ length, how it leaves the housing |
+| 3 | Wires, 200 mm, different colours | from the sensor to `DS18S20_E` |
 
 ### Printed parts and finishing
 
@@ -144,14 +143,24 @@ Items marked **❓** are still to be filled in.
 | 16 | Screws **M3 × 25 mm** | top → base, into the brass inserts |
 | 1 | Pivot / axle for the tipping bucket, **40 mm** | use a long screw and **cut off the thread at the end**, so the part of the shaft the tipper swings on is **smooth** |
 | 1 | Cable gland / grommet for a **10 mm hole** | power and sensor cables in, watertight |
-| — | Mounting hardware (pole, wall bracket, angle iron frame, bolts + springs) | **for the builder to improvise** — see section 6; the 4 mounting holes are Ø 3.0 mm on a 68.7 mm square, `Mount_Template.stl` helps to drill the frame |
+| 1 | **3D printer bed-levelling kit** (M3 bolts, springs and knurled nuts) | for the 4 Ø 3.0 mm mounting holes — the springs let you level the gauge (section 6) |
+| — | Mounting hardware (pole, wall bracket, angle iron frame, frame) | **for the builder to improvise** — see section 6; the 4 mounting holes are Ø 3.0 mm on a 68.7 mm square, `Mount_Template.stl` helps to drill the frame |
 
 ### Power
 
 | Qty | Part | Notes |
 |---|---|---|
 | 1 | 5 V DC power supply, at least 1 A | into `5VDC_INPUT` (**+** marked) |
-| 1 | 2-wire power cable | ❓ length, outdoor rated |
+| 1 | 2-wire power cable, outdoor rated | length to suit where the gauge stands; in through the cable gland |
+
+**About the IR LED and pickup:** the pickup is read with a 10K pull-up — the
+input is LOW when it receives light — so it must be an **NPN phototransistor**,
+and the LED and pickup must work at the **same wavelength (940 nm)**. A pickup
+with a **daylight filter** (black body) is much less disturbed by sunlight. The
+part numbers above are suggestions; any 5 mm 940 nm IR LED + 940 nm NPN
+phototransistor pair works. Check the polarity in the datasheet: if **Bucket
+Position** on the HOME page never changes when you tip the bucket, turn the
+pickup around.
 
 ## 3. The PCB
 
@@ -269,7 +278,8 @@ works well:
   base). Clamp it on the frame, mark or drill through the holes, and the gauge
   fits.
 - Bolt the gauge onto it **with a spring on each bolt** between the base and the
-  frame. With the springs you can **level** the gauge by turning the 4 nuts (like
+  frame — a **3D printer bed-levelling kit** (M3 bolts, springs, knurled nuts) is
+  ideal. With the springs you can **level** the gauge by turning the 4 nuts (like
   the bed of a 3D printer): put a spirit level across the top of the funnel and
   adjust until it is level both ways. A gauge that is not level tips early on one
   side and late on the other, and the readings are wrong.
