@@ -12,14 +12,18 @@ Every part is already saved in its print position: when you load an STL into a
 slicer such as **Cura**, it lies on the build plate the right way up, with its
 flat side down. Just place it on the plate and slice.
 
+The STL files are in this folder (**Enclosure/**) — click a name to see the part
+in 3D on GitHub, then **Download raw file** (the download icon at the top right).
+On your own PC they are in `RainGauge_PUBLIC/Enclosure/`.
+
 | File | Part | Size (X × Y × height) |
 |---|---|---|
-| `RM_Top.stl` | Top with the funnel — 146 mm across (= *Funnel Diameter* on the SETTINGS page) | 146 × 146 × 88.6 mm |
-| `RM_Mid.stl` | Middle section | 146 × 146 × 74.5 mm |
-| `RM_Base.stl` | Base | 139 × 115 × 65 mm |
-| `RainMeterTipper.stl` | Tipping bucket | 98 × 23 × 28 mm |
-| `PCBLift.stl` | PCB lift / spacer | 44 × 24 × 3 mm |
-| `TempSupportPlug.stl` | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm |
+| [`RM_Top.stl`](RM_Top.stl) | Top with the funnel — 146 mm across (= *Funnel Diameter* on the SETTINGS page) | 146 × 146 × 88.6 mm |
+| [`RM_Mid.stl`](RM_Mid.stl) | Middle section | 146 × 146 × 74.5 mm |
+| [`RM_Base.stl`](RM_Base.stl) | Base | 139 × 115 × 65 mm |
+| [`RainMeterTipper.stl`](RainMeterTipper.stl) | Tipping bucket | 98 × 23 × 28 mm |
+| [`PCBLift.stl`](PCBLift.stl) | PCB lift / spacer | 44 × 24 × 3 mm |
+| [`TempSupportPlug.stl`](TempSupportPlug.stl) | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm |
 
 Notes:
 
