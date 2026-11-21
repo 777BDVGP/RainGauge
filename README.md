@@ -77,8 +77,8 @@ Notes:
 - **WEMOS LOLIN S2 Mini** (ESP32-S2)
 - **IR LED** and **IR pickup** (the beam the tipping bucket breaks)
 - **DS18S20** temperature sensor for outside (a second one on the PCB is optional)
-- **Brass heat-set inserts** and matching screws — the parts are screwed together
-  into inserts melted into the ABS with a soldering iron
+- **Brass heat-set inserts** and matching screws — melted into the base with a
+  soldering iron; the top screws onto the base
 - 3-pin **Dupont** female crimp terminals + housing for the temperature sensor
 - A **5 V DC** power supply
 
@@ -133,7 +133,7 @@ where the holder fits on the gauge)**
 
 **The base and the electronics:**
 
-5. Melt the **brass inserts** into the screw holes of the printed parts with a
+5. Melt the **brass inserts** into the screw holes of the **base** (`RM_Base`) with a
    soldering iron (let them cool before screwing into them).
 6. Mount the PCB on the **PCBLift** in the **base** and screw it down.
 7. Fit the **IR LED** and the **IR pickup** into their holes: the holes in the
@@ -145,7 +145,8 @@ where the holder fits on the gauge)**
 
 **Putting it together:**
 
-10. Fit the glued **top + middle section** onto the **base** and screw it down.
+10. Fit the glued **top + middle section** onto the **base** and screw it down into
+    the brass inserts.
 
 ## 6. Installing the firmware
 
