@@ -150,7 +150,7 @@ Quantities for **one** gauge. Part names in `code` are the names printed on the 
 
 | Qty | Part | Notes |
 |---|---|---|
-| 1 | 5 V DC power supply, at least 1 A | into `5VDC_INPUT` (**+** marked) |
+| 1 | 5 V DC power supply, at least 1 A — **an old cellphone charger works well** | **check that it gives 5 V DC** (not 9 / 12 V fast-charge, not AC) — measure it before connecting; into `5VDC_INPUT` (**+** marked) |
 | 1 | 2-wire power cable, outdoor rated | length to suit where the gauge stands; in through the cable gland |
 
 **About the IR LED and pickup:** the pickup is read with a 10K pull-up — the
