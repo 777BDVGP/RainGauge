@@ -103,7 +103,7 @@ Items marked **❓** are still to be filled in.
 | 1 | 3-pin header, 2.54 mm | `DS18S20_E` | outside temperature sensor plugs in here |
 | 1 | IR pickup, 5 mm | `IR PICKUP` | ❓ exact type (phototransistor / photodiode, wavelength) — must match the IR LED |
 | 0–1 | DS18S20, TO-92 | `DS18S20_I` | **optional**, inside temperature (technical use only) |
-| 4 | Screws for the PCB corners | — | ❓ size and length |
+| 4 | Screws **M3 × 10 mm** for the PCB corners | — | into the brass inserts in the base |
 
 ### IR LED — choose one way
 
@@ -140,8 +140,8 @@ Items marked **❓** are still to be filled in.
 
 | Qty | Part | Notes |
 |---|---|---|
-| 20 | Brass heat-set inserts, **4 mm long** | melted into the base — thread **M3** ❓ (to be confirmed) |
-| 16 | Screws, **25 mm** long | top → base, into the brass inserts |
+| 20 | Brass heat-set inserts **M3**, **4 mm long** | melted into the base — 16 for the top, 4 for the PCB |
+| 16 | Screws **M3 × 25 mm** | top → base, into the brass inserts |
 | 1 | Pivot / axle for the tipping bucket, **40 mm** | use a long screw and **cut off the thread at the end**, so the part of the shaft the tipper swings on is **smooth** |
 | 1 | Cable gland / grommet for a **10 mm hole** | power and sensor cables in, watertight |
 | — | Mounting hardware (pole, wall bracket, angle iron frame, bolts + springs) | **for the builder to improvise** — see section 6; the 4 mounting holes are Ø 3.0 mm on a 68.7 mm square, `Mount_Template.stl` helps to drill the frame |
@@ -233,9 +233,10 @@ where the holder fits on the gauge)**
 
 **The base and the electronics:**
 
-5. Melt the **brass inserts** into the screw holes of the **base** (`RM_Base`) with a
-   soldering iron (let them cool before screwing into them).
-6. Mount the PCB on the **PCBLift** in the **base** and screw it down.
+5. Melt the 20 **M3 brass inserts** (4 mm long) into the screw holes of the **base**
+   (`RM_Base`) with a soldering iron (let them cool before screwing into them).
+6. Mount the PCB on the **PCBLift** in the **base** and screw it down with 4 × M3 × 10 mm
+   screws into the brass inserts.
 7. Fit the **IR LED** (on its holder PCB or in the printed holder) and the
    **IR pickup** into their holes: the holes in the printed parts line them up with
    the **tipping bucket**, so the beam is broken by one side of the bucket and open
@@ -247,8 +248,8 @@ where the holder fits on the gauge)**
 
 **Putting it together:**
 
-10. Fit the glued **top + middle section** onto the **base** and screw it down into
-    the brass inserts.
+10. Fit the glued **top + middle section** onto the **base** and screw it down with
+    16 × M3 × 25 mm screws into the brass inserts.
 
 ## 6. Mounting outside
 
