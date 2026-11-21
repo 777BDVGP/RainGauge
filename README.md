@@ -52,7 +52,8 @@ Without internet at the gauge: download `docs/firmware/raingauge.bin` and use
 Every change of the pickup (both bucket sides) is one tip.
 
 - `PCB/` — Eagle schematic + board (RAINMETER_V1) and gerbers
-- `Enclosure/` — STL files
+- `Enclosure/` — STL files (printed in ABS, already in print position) and the
+  [printing and assembly guide](Enclosure/README.md)
 - `docs/pictures/` — photos
 
 ## Building it yourself
