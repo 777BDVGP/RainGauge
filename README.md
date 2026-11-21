@@ -52,19 +52,20 @@ The STL files are in the [`Enclosure/`](Enclosure) folder — click a name below
 see the part in 3D on GitHub, then **Download raw file** (the download icon at the
 top right).
 
-| File | Part | Size (X × Y × height) |
-|---|---|---|
-| [`RM_Top.stl`](Enclosure/RM_Top.stl) | Top with the funnel — 146 mm across (= *Funnel Diameter* on the SETTINGS page) | 146 × 146 × 88.6 mm |
-| [`RM_Mid.stl`](Enclosure/RM_Mid.stl) | Middle section | 146 × 146 × 74.5 mm |
-| [`RM_Base.stl`](Enclosure/RM_Base.stl) | Base | 139 × 115 × 65 mm |
-| [`RainMeterTipper.stl`](Enclosure/RainMeterTipper.stl) | Tipping bucket | 98 × 23 × 28 mm |
-| [`PCBLift.stl`](Enclosure/PCBLift.stl) | PCB lift / spacer | 44 × 24 × 3 mm |
-| [`TempSupportPlug.stl`](Enclosure/TempSupportPlug.stl) | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm |
-| [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) | Holder for the IR LED (instead of the IR holder PCB) | 24 × 27.6 × 6 mm |
+| File | Part | Size (X × Y × height) | ABS approx. |
+|---|---|---|---|
+| [`RM_Top.stl`](Enclosure/RM_Top.stl) | Top with the funnel — 146 mm across (= *Funnel Diameter* on the SETTINGS page) | 146 × 146 × 88.6 mm | 144 g |
+| [`RM_Mid.stl`](Enclosure/RM_Mid.stl) | Middle section | 146 × 146 × 74.5 mm | 135 g |
+| [`RM_Base.stl`](Enclosure/RM_Base.stl) | Base | 139 × 115 × 65 mm | 80 g |
+| [`RainMeterTipper.stl`](Enclosure/RainMeterTipper.stl) | Tipping bucket | 98 × 23 × 28 mm | 9 g |
+| [`PCBLift.stl`](Enclosure/PCBLift.stl) | PCB lift / spacer | 44 × 24 × 3 mm | 2 g |
+| [`TempSupportPlug.stl`](Enclosure/TempSupportPlug.stl) | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm | 3 g |
+| [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) | Holder for the IR LED (instead of the IR holder PCB) | 24 × 27.6 × 6 mm | 3 g |
 
 Notes:
 
 - The top and middle need a build plate of at least **150 × 150 mm**.
+- Weights are estimates for 3 walls + 20 % infill; all parts together ≈ **380 g** of ABS.
 - ABS warps and cracks when it cools unevenly: an enclosed printer (or a
   draught-free room) and a heated bed help.
 - `RainMeterTipper.stl` touches the plate with only a small area — a **brim**
@@ -128,7 +129,7 @@ Items marked **❓** are still to be filled in.
 | Qty | Part | Notes |
 |---|---|---|
 | 1 each | `RM_Top`, `RM_Mid`, `RM_Base`, `RainMeterTipper`, `PCBLift`, `TempSupportPlug` (+ `IR_LED_Support` if used) | see section 1 |
-| ~❓ g | ABS filament | ❓ amount for all parts |
+| ~380 g | ABS filament, 1.75 mm (≈ 150 m) | estimated from the STL files with 3 walls + 20 % infill, without supports; solid (100 % infill) would be ~520 g. One 1 kg spool is plenty |
 | — | ABS glue (ABS cement / solvent glue) | top + middle section |
 | — | Sandpaper | funnel inside and outside |
 | — | White paint (outdoor) | reflects the sun |
