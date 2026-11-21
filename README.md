@@ -140,13 +140,11 @@ Items marked **❓** are still to be filled in.
 
 | Qty | Part | Notes |
 |---|---|---|
-| ❓ | Brass heat-set inserts | ❓ thread size (M3?) — melted into the base |
-| ❓ | Screws for top → base | ❓ size, length |
-| ❓ | Pivot / axle for the tipping bucket | ❓ what is used, size |
-| ❓ | Cable gland / grommet | ❓ for the power and sensor cables (watertight) |
-| 4 | Bolts + nuts for the 4 mounting holes (Ø 3.0 mm → M3, or drill out for bigger) | ❓ length depends on your frame and springs |
-| 4 | Compression springs, one per bolt | for levelling — ❓ size |
-| 1 | Mounting frame / plate, e.g. angle iron | self-made, see section 6 — drill it with `Mount_Template.stl` |
+| 20 | Brass heat-set inserts, **4 mm long** | melted into the base — thread **M3** ❓ (to be confirmed) |
+| 16 | Screws, **25 mm** long | top → base, into the brass inserts |
+| 1 | Pivot / axle for the tipping bucket, **40 mm** | use a long screw and **cut off the thread at the end**, so the part of the shaft the tipper swings on is **smooth** |
+| 1 | Cable gland / grommet for a **10 mm hole** | power and sensor cables in, watertight |
+| — | Mounting hardware (pole, wall bracket, angle iron frame, bolts + springs) | **for the builder to improvise** — see section 6; the 4 mounting holes are Ø 3.0 mm on a 68.7 mm square, `Mount_Template.stl` helps to drill the frame |
 
 ### Power
 
@@ -242,7 +240,8 @@ where the holder fits on the gauge)**
    **IR pickup** into their holes: the holes in the printed parts line them up with
    the **tipping bucket**, so the beam is broken by one side of the bucket and open
    with the other.
-8. Put the **tipping bucket** on its pivot — it must tip freely both ways.
+8. Put the **tipping bucket** on its pivot (a 40 mm screw with the thread cut off
+   where the tipper swings, so the shaft is smooth) — it must tip freely both ways.
 9. Connect the IR LED to the `IR_LED` connector, the outside sensor to
    `EXTERNAL DS18S20_E`, and 5 V to `5VDC_INPUT`.
 
