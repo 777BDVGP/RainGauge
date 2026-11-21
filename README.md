@@ -55,6 +55,7 @@ top right).
 | [`RainMeterTipper.stl`](Enclosure/RainMeterTipper.stl) | Tipping bucket | 98 × 23 × 28 mm |
 | [`PCBLift.stl`](Enclosure/PCBLift.stl) | PCB lift / spacer | 44 × 24 × 3 mm |
 | [`TempSupportPlug.stl`](Enclosure/TempSupportPlug.stl) | Holder for the outside temperature sensor | 21 × 21 × 17.5 mm |
+| [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) | Holder for the IR LED (instead of the IR holder PCB) | 24 × 27.6 × 6 mm |
 
 Notes:
 
@@ -114,9 +115,11 @@ between them. It connects to the `IR_LED` connector on the main PCB.
   5 mm IR LED and a 2-pin connector (Molex C-Grid 70553-02) for the cable to the
   main PCB. Eagle files and gerbers:
   [`PCB/RAINMETER_IR_HOLDER*`](PCB). Neat, but it is one more PCB to order.
-- **Printed holder (STL) — cheaper alternative (to be completed):** a printed part
-  in which the IR LED is mounted directly, with its wires soldered to a cable to
-  the `IR_LED` connector. No extra PCB needed.
+- **Printed holder — cheaper alternative:**
+  [`IR_LED_Support.stl`](Enclosure/IR_LED_Support.stl) (24 × 27.6 × 6 mm, printed
+  like the other parts). The IR LED is mounted directly in it; solder a 2-wire
+  cable to the LED legs and plug it into the `IR_LED` connector on the main PCB
+  (mind the **+**). No extra PCB needed.
 
 ## 4. The outside temperature sensor
 
