@@ -7,6 +7,9 @@ is a web page on your own WiFi; no cloud, no app needed.
 
 **Install / update page:** https://777bdvgp.github.io/RainGauge/
 
+**How to use it — every page and setting:** [USER_GUIDE.md](USER_GUIDE.md)
+(also on the web: https://777bdvgp.github.io/RainGauge/guide.html)
+
 **Contents:** [Features](#features) · [1. Printing the parts](#1-printing-the-parts) ·
 [2. Bill of materials](#2-bill-of-materials-bom) · [3. The PCB](#3-the-pcb) ·
 [4. The outside temperature sensor](#4-the-outside-temperature-sensor) ·
@@ -49,7 +52,9 @@ Every part is already saved in its print position: when you load an STL into a
 slicer such as **Cura**, it lies on the build plate the right way up, with its
 flat side down. Just place it on the plate and slice.
 
-The STL files are in the [`Enclosure/`](Enclosure) folder — click a name below to
+All eight STL files in one download:
+[`Enclosure_3D_Print_STL.zip`](https://github.com/777BDVGP/RainGauge/raw/main/Enclosure/Enclosure_3D_Print_STL.zip).
+They are also in the [`Enclosure/`](Enclosure) folder — click a name below to
 see the part in 3D on GitHub, then **Download raw file** (the download icon at the
 top right).
 
@@ -363,7 +368,8 @@ Each build writes `firmware_out/RainGauge_v<ver>.bin` (update) and
 `src/wifi_secrets.example.h` (your copy `wifi_secrets.h` is never committed).
 
 Publishing a new version (maintainer): `python sync_from_private.py`, build,
-`python update_firmware.py "note"`, commit, push.
+`python update_firmware.py "note"`, commit, push. After changing an STL file:
+`python make_enclosure_zip.py` (rebuilds the download ZIP).
 
 ## Licence
 

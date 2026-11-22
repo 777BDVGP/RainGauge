@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rain Gauge User Guide</title>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--fg:#1f2933;--muted:#5f6b7a;--line:#d9dee5;--acc:#0369a1;--warn:#b45309}
+@media (prefers-color-scheme:dark){:root{--bg:#0f172a;--card:#1e293b;--fg:#e2e8f0;--muted:#94a3b8;--line:#334155;--acc:#38bdf8;--warn:#f59e0b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:820px;margin:0 auto;padding:24px 16px 48px}
+nav.top{font-size:.9rem;margin-bottom:12px}
+h1{font-size:1.6rem;margin:0 0 8px}
+h2{font-size:1.2rem;margin:32px 0 8px;padding-top:8px;border-top:1px solid var(--line)}
+h3{font-size:1.05rem;margin:20px 0 6px}
+p{margin:6px 0}
+a{color:var(--acc)}
+ol,ul{padding-left:22px}li{margin:4px 0}
+code{background:var(--card);border:1px solid var(--line);border-radius:4px;padding:0 4px;word-break:break-word}
+blockquote{border-left:4px solid var(--warn);background:var(--card);margin:12px 0;padding:8px 14px;border-radius:6px}
+.tbl{overflow-x:auto;margin:10px 0}
+table{border-collapse:collapse;width:100%;font-size:.92rem;background:var(--card)}
+td,th{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+#toc{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin:12px 0}
+#toc ol{margin:4px 0}
+.err{color:var(--warn)}
+</style>
+</head>
+<body>
+<main>
+<nav class="top"><a href="./">&larr; Install page</a> &middot;
+<a href="https://github.com/777BDVGP/RainGauge#readme">Build guide (README)</a> &middot;
+<a href="https://github.com/777BDVGP/RainGauge">GitHub</a></nav>
+<div id="toc" hidden><b>Contents</b><ol id="toclist"></ol></div>
+<div id="guide"><p>Loading the user guide&hellip;</p></div>
+</main>
+<script>
+// The guide's one source is USER_GUIDE.md in the repository; this page shows it.
+var SRC = 'https://raw.githubusercontent.com/777BDVGP/RainGauge/main/USER_GUIDE.md';
+// Local preview (python -m http.server in the repository folder): use the
+// files on this PC instead of the published ones.
+var LOCAL = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+if (LOCAL) SRC = '../USER_GUIDE.md';
+var REPO = 'https://github.com/777BDVGP/RainGauge/blob/main/';
+fetch(SRC + '?t=' + Date.now()).then(function (r) {
+  if (!r.ok) throw new Error(r.status);
+  return r.text();
+}).then(function (md) {
+  var el = document.getElementById('guide');
+  el.innerHTML = marked.parse(md);
+  // Relative links in the guide (README.md, ...) point into the repository.
+  el.querySelectorAll('a[href]').forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!/^(https?:|#|mailto:)/.test(h)) a.href = REPO + h;
+  });
+  // Wide tables scroll sideways on a phone instead of widening the page.
+  el.querySelectorAll('table').forEach(function (t) {
+    var w = document.createElement('div'); w.className = 'tbl';
+    t.parentNode.insertBefore(w, t); w.appendChild(t);
+  });
+  // Contents list from the numbered sections.
+  var list = document.getElementById('toclist');
+  el.querySelectorAll('h2').forEach(function (h, i) {
+    h.id = 'sec' + (i + 1);
+    var li = document.createElement('li'), a = document.createElement('a');
+    a.href = '#' + h.id; a.textContent = h.textContent.replace(/^\d+\.\s*/, '');
+    li.appendChild(a); list.appendChild(li);
+  });
+  if (list.children.length) document.getElementById('toc').hidden = false;
+  var h1 = el.querySelector('h1');
+  if (h1) document.title = h1.textContent;
+}).catch(function () {
+  document.getElementById('guide').innerHTML =
+    '<p class="err">The guide could not be loaded. Read it on <a href="' + REPO +
+    'USER_GUIDE.md">GitHub</a>.</p>';
+});
+</script>
+</body>
+</html>
