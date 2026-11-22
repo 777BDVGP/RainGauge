@@ -324,14 +324,16 @@ list, not replacing the others).
 
 ## 8. Testing and calibrating
 
-1. Tip the bucket by hand and watch **Bucket Position** on the HOME page:
+1. Set **SETTINGS → Time Zone** (the gauge starts on Greenwich, GMT) and press
+   **UPDATE** — before it collects rain, because the reports use local time.
+2. Tip the bucket by hand and watch **Bucket Position** on the HOME page:
    it must change between **OPEN** (green) and **BROKEN** (red) on every tip.
-2. **NTFY page → TEST IR SENSOR NOW** (with the beam OPEN) must report *OK*.
-3. Stand the gauge level and **calibrate** it (SETTINGS → CALIBRATION): pour a known
+3. **NTFY page → TEST IR SENSOR NOW** (with the beam OPEN) must report *OK*.
+4. Stand the gauge level and **calibrate** it (SETTINGS → CALIBRATION): pour a known
    amount of water (default 500 ml) slowly into the funnel — the gauge learns how
    much water one tip is.
-4. **SETTINGS → START FRESH** to clear the test tips (settings and calibration are kept).
-5. Set the **Irrigation Answer Method** (or *No Irrigation* for a plain rain meter),
+5. **SETTINGS → START FRESH** to clear the test tips (settings and calibration are kept).
+6. Set the **Irrigation Answer Method** (or *No Irrigation* for a plain rain meter),
    your **latitude**, soil type, root depth and garden factor on SETTINGS, and
    NTFY alerts if you want them.
 

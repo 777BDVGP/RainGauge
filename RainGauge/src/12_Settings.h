@@ -9,6 +9,18 @@
 // page builders to avoid heap fragmentation from String += operations.
 // =============================================================================
 
+// Default time zone (a label from TZ_OPTIONS in 02_Time.cpp): Greenwich for the
+// public firmware; a private build can start on South African time with
+// PRIVATE_DEFAULT_TZ_SAST in the git-ignored wifi_secrets.h.
+#if __has_include("wifi_secrets.h")
+	#include "wifi_secrets.h"
+#endif
+#ifdef PRIVATE_DEFAULT_TZ_SAST
+	#define TZ_DEFAULT_LABEL "South Africa, Zimbabwe, Mozambique (SAST, UTC+2)"
+#else
+	#define TZ_DEFAULT_LABEL "Greenwich (GMT / UTC, no daylight saving)"
+#endif
+
 // =============================================================================
 // AllParams
 // Holds global system configuration that is stored in /AllParams.json.
@@ -26,6 +38,7 @@ public:
 	bool   LogGeneralEvents    = true;         // Append timestamped entries to GeneralLog.txt
 	bool   ShowSysInfo         = false;        // ABOUT: show Memory + Tasks sections (diagnostics)
 	bool   ShowInsideTemp      = false;        // HOME / REPORTS / SIMULATION: show the inside (internal) temperature
+	String TimeZone            = TZ_DEFAULT_LABEL; // a TZ_OPTIONS label (02_Time.cpp) — SETTINGS dropdown
 
 	// ── Scheduled Reboot ──────────────────────────────────────────────────────
 	bool   RebootEnable1       = true;    // Armed/disarmed
@@ -99,7 +112,9 @@ String ControllerName();
 
 	#define SET_SHOW_INSIDE      22   // Show inside temperature checkbox
 
-	#define PAGE_VAR_SETTINGS    23   // Total number of settings page PageVar entries
+	#define SET_TIME_ZONE        23   // Time zone dropdown (02_Time.cpp TZ_OPTIONS)
+
+	#define PAGE_VAR_SETTINGS    24   // Total number of settings page PageVar entries
 
 // =============================================================================
 // Static Page Build Buffer  (WT_* table content only)

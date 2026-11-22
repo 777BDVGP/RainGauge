@@ -1,5 +1,5 @@
 {
-  "version": "1.9.2",
+  "version": "1.10.0",
   "bin": "firmware/raingauge.bin",
-  "notes": "Learn the router's gateway for fixed-IP networks; WiFi list layout fix"
+  "notes": "Time-zone setting on SETTINGS (26 zones, daylight saving automatic), default Greenwich"
 }

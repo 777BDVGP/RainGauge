@@ -15,3 +15,7 @@
 	#define WIFI_KNOWN_NETS \
 		{ "MyHomeWiFi",  "my-password",  { 192, 168, 1, 124 } }, \
 		{ "OtherWiFi",   "other-pass",   { 192, 168, 0,  50 } },
+
+	// Optional: start on South African time instead of Greenwich (GMT) when no
+	// time zone has been chosen yet on the SETTINGS page.
+	// #define PRIVATE_DEFAULT_TZ_SAST

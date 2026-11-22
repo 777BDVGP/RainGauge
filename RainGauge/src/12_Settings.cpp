@@ -43,6 +43,7 @@ void AllParams::WriteData()
 	doc["IrriSkipMm"]       = IrriSkipMm;
 	doc["IrriSkipHours"]    = IrriSkipHours;
 
+	doc["TimeZone"]         = TimeZone;
 	doc["IrriMode"]         = IrriMode;
 	doc["Latitude"]         = Latitude;
 	doc["CropKc"]           = CropKc;
@@ -88,6 +89,7 @@ void AllParams::ReadData()
 			if ( !doc["IrriSkipMm"].isNull()       ){ IrriSkipMm       = doc["IrriSkipMm"].as<float>(); }
 			if ( !doc["IrriSkipHours"].isNull()    ){ IrriSkipHours    = doc["IrriSkipHours"].as<int>(); }
 
+			if ( !doc["TimeZone"].isNull()         ){ TimeZone         = doc["TimeZone"].as<String>(); }
 			if ( !doc["IrriMode"].isNull()         ){ IrriMode         = doc["IrriMode"].as<String>(); }
 			if ( !doc["Latitude"].isNull()         ){ Latitude         = doc["Latitude"].as<float>(); }
 			if ( !doc["CropKc"].isNull()           ){ CropKc           = doc["CropKc"].as<float>(); }
@@ -207,6 +209,11 @@ void MapSettingsPage(){
 				SettingsList[i].Var = new PageElement(&Params->IrriSkipHours, F("...in the Last (hours)"), "", &SetStyle, i+ID_SETTINGS);
 				SettingsList[i].Var->SetRange(1, 240, 1);
 				break;
+			case SET_TIME_ZONE:
+				SettingsList[i].Var = new PageElement(&Params->TimeZone, F("Time Zone (daylight saving automatic)"), "", &SetStyle, i+ID_SETTINGS);
+				SettingsList[i].Var->SetStringToSelect(TZ_OPTION_COUNT);
+				for (int k = 0; k < TZ_OPTION_COUNT; k++) SettingsList[i].Var->AddOption(TZ_OPTIONS[k].label);
+				break;
 		}
 	}
 }
@@ -292,6 +299,7 @@ void WT_SETUP_Settings(){
 	{
 		WT_EditRow(&SettingsList[i]);
 	}
+	WT_EditRow(&SettingsList[SET_TIME_ZONE]);
 	WT_EditRow(&SettingsList[SET_SHOW_SYSINFO]);
 	WT_EditRow(&SettingsList[SET_SHOW_INSIDE]);
 	WT_CheckEditRow(&SettingsList[SET_REBOOT_EN1], &SettingsList[SET_REBOOT_TIME1], "time");
@@ -357,6 +365,7 @@ void SendSettingsPageValues(){
 
 void UpdateSettingsPageValues(uint32_t clientId, JsonObject *root){
 	String oldMode = Params->IrriMode;
+	String oldTz   = Params->TimeZone;
 
 	for (JsonPair kv : *root){
 		for (int i=0; i < PAGE_VAR_SETTINGS; i++)
@@ -371,6 +380,10 @@ void UpdateSettingsPageValues(uint32_t clientId, JsonObject *root){
 	WebMessUpdate(clientId, "Parameters Updated!", "color: red", true);
 	Params->WriteData();
 	ApplyRainSettings();
+	if (Params->TimeZone != oldTz){
+		ApplyTimeZone();     // new zone at once, no restart (02_Time.cpp)
+		SaveGenReport("Time zone set to " + Params->TimeZone);
+	}
 	UpdateTimerTimes();
 	// Method changed: the page shows other sections now — let the browser reload it.
 	if (Params->IrriMode != oldMode) ws.text(clientId, "{\"type\":\"reload\"}");

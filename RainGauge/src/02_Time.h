@@ -16,7 +16,22 @@
 // =============================================================================
 
 // ─── NTP Server ───────────────────────────────────────────────────────────────
-inline const char *ntpServer = "za.pool.ntp.org";   // South Africa NTP pool (UTC+2)
+inline const char *ntpServer = "pool.ntp.org";      // worldwide NTP pool
+
+// ─── Time Zone (SETTINGS "Time Zone") ────────────────────────────────────────
+// Params->TimeZone stores one of these labels; the POSIX string is what the C
+// library uses (offset west-of-UTC positive; ",M..." = daylight saving rules).
+struct TzOption {
+	const char *label;   // shown in the SETTINGS dropdown and stored in AllParams.json
+	const char *posix;   // TZ environment string
+};
+extern const TzOption TZ_OPTIONS[];
+extern const int      TZ_OPTION_COUNT;
+
+// POSIX string for a stored label (unknown label -> Greenwich "GMT0").
+const char* TimeZonePosix(const String& label);
+// Applies Params->TimeZone now (setenv TZ + tzset) — used at boot and after SETTINGS.
+void ApplyTimeZone();
 
 // =============================================================================
 // Software Timer Engine

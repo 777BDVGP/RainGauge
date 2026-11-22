@@ -1,7 +1,7 @@
 #pragma once
 
 // Firmware version — shown on the ABOUT page.  Bump it with every change you upload.
-#define FW_VERSION "1.9.2"
+#define FW_VERSION "1.10.0"
 
 // =============================================================================
 // 01_Main.h — Global Definitions, System Libraries & Core State Variables

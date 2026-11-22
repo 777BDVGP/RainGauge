@@ -53,8 +53,55 @@ void MaintainHeapGuard() {
 // arduino-esp32 3.x / IDF 5 lwIP core-locking.  Only second resolution is used
 // (CompileDateTime -> time()/localtime()), so nothing is lost.
 // -----------------------------------------------------------------------------
+// ─── Time zones (SETTINGS dropdown) ──────────────────────────────────────────
+// Labels must not contain ' " < > & — they go into the page as option text.
+const TzOption TZ_OPTIONS[] = {
+	{ "Greenwich (GMT / UTC, no daylight saving)",        "GMT0" },
+	{ "UK, Ireland, Portugal (GMT / BST)",                "GMT0BST,M3.5.0/1,M10.5.0" },
+	{ "Central Europe (CET / CEST)",                      "CET-1CEST,M3.5.0,M10.5.0/3" },
+	{ "Eastern Europe (EET / EEST)",                      "EET-2EEST,M3.5.0/3,M10.5.0/4" },
+	{ "South Africa, Zimbabwe, Mozambique (SAST, UTC+2)", "SAST-2" },
+	{ "Namibia, Botswana, Zambia (CAT, UTC+2)",           "CAT-2" },
+	{ "Kenya, Tanzania, Uganda (EAT, UTC+3)",             "EAT-3" },
+	{ "Moscow, Turkey, Saudi Arabia (UTC+3)",             "<+03>-3" },
+	{ "Gulf: UAE, Oman (UTC+4)",                          "<+04>-4" },
+	{ "Pakistan (UTC+5)",                                 "PKT-5" },
+	{ "India, Sri Lanka (IST, UTC+5:30)",                 "IST-5:30" },
+	{ "Thailand, Vietnam, Indonesia West (UTC+7)",        "<+07>-7" },
+	{ "China, Singapore, Philippines, W. Australia (UTC+8)", "<+08>-8" },
+	{ "Japan, Korea (UTC+9)",                             "<+09>-9" },
+	{ "Queensland, Australia (AEST, UTC+10)",             "AEST-10" },
+	{ "Sydney, Melbourne, Canberra (AEST / AEDT)",        "AEST-10AEDT,M10.1.0,M4.1.0/3" },
+	{ "New Zealand (NZST / NZDT)",                        "NZST-12NZDT,M9.5.0,M4.1.0/3" },
+	{ "Brazil: Sao Paulo, Rio (UTC-3)",                   "<-03>3" },
+	{ "Argentina (UTC-3)",                                "<-03>3" },
+	{ "US and Canada Eastern (EST / EDT)",                "EST5EDT,M3.2.0,M11.1.0" },
+	{ "US and Canada Central (CST / CDT)",                "CST6CDT,M3.2.0,M11.1.0" },
+	{ "US and Canada Mountain (MST / MDT)",               "MST7MDT,M3.2.0,M11.1.0" },
+	{ "Arizona (MST, no daylight saving)",                "MST7" },
+	{ "US and Canada Pacific (PST / PDT)",                "PST8PDT,M3.2.0,M11.1.0" },
+	{ "Alaska (AKST / AKDT)",                             "AKST9AKDT,M3.2.0,M11.1.0" },
+	{ "Hawaii (HST)",                                     "HST10" },
+};
+const int TZ_OPTION_COUNT = sizeof(TZ_OPTIONS) / sizeof(TZ_OPTIONS[0]);
+
+const char* TimeZonePosix(const String& label){
+	for (int i = 0; i < TZ_OPTION_COUNT; i++)
+		if (label == TZ_OPTIONS[i].label) return TZ_OPTIONS[i].posix;
+	return "GMT0";
+}
+
+void ApplyTimeZone(){
+	const char* tz = TimeZonePosix(Params ? Params->TimeZone : String());
+	setenv("TZ", tz, 1);
+	tzset();
+	CompileDateTime();
+	DEBUG_PRINTLN("Time zone: " + String(tz));
+}
+
 void SetupTime(){
-	configTzTime("SAST-2", ntpServer);   // UTC+2 — South Africa Standard Time
+	// SETTINGS "Time Zone" (default Greenwich; see TZ_DEFAULT_LABEL in 12_Settings.h)
+	configTzTime(TimeZonePosix(Params ? Params->TimeZone : String()), ntpServer);
 
 	CompileDateTime();
 	DEBUG_PRINTLN(DateTime);

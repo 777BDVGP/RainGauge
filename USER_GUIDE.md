@@ -15,14 +15,17 @@ WiFi — phone or PC. The pages need no login — anyone on your WiFi can open t
    fast). Connect a phone, pick your network, type the password, choose
    **Automatic (DHCP)** or a **fixed IP** and press **SAVE & RESTART**. Use a
    fixed IP when an irrigation controller must read the gauge.
-2. **Check the sensor** — tip the bucket by hand and watch **Bucket Position**
+2. **Time zone** — SETTINGS → **Time Zone**. The gauge starts on Greenwich
+   (GMT); pick your zone and press **UPDATE** — the time changes at once.
+   Set it before the gauge collects rain: the reports are kept in local time.
+3. **Check the sensor** — tip the bucket by hand and watch **Bucket Position**
    on HOME change between **OPEN** (green) and **BROKEN** (red) on every tip.
-3. **Calibrate** — SETTINGS → **CALIBRATION** (section 5).
-4. **Start fresh** — SETTINGS → **START FRESH** clears the test tips.
-5. **Irrigation** — choose the **Irrigation Answer Method** and set your
+4. **Calibrate** — SETTINGS → **CALIBRATION** (section 5).
+5. **Start fresh** — SETTINGS → **START FRESH** clears the test tips.
+6. **Irrigation** — choose the **Irrigation Answer Method** and set your
    latitude, soil and garden on SETTINGS (section 4), or choose
    **No Irrigation** for a plain rain meter.
-6. **Phone alerts** (optional) — NTFY page (section 7).
+7. **Phone alerts** (optional) — NTFY page (section 7).
 
 ## 2. The pages
 
@@ -128,6 +131,7 @@ result; **TEST IR SENSOR NOW** runs it at once (only with the beam OPEN).
 |---|---|---|
 | System | System Name | the name at the top of every page |
 | | Log General Events | keep the General Log |
+| | Time Zone (daylight saving automatic) | 26 zones; Greenwich out of the box; applied at once |
 | | Enable Reboot + Scheduled Reboot @ Time | a daily restart (default 00:05) |
 | | Show Memory & Tasks on ABOUT | technical readout |
 | | Show Inside Temperature (HOME, REPORTS) | for a second sensor inside the box |
@@ -201,5 +205,5 @@ shown.
 | What | Limit |
 |---|---|
 | Saved WiFi networks | 8 (2.4 GHz only) |
-| Time zone | South Africa (UTC+2), fixed |
+| Time zone | 26 zones to choose from (SETTINGS); not every country is in the list |
 | Web pages / updates over WiFi | no password — keep the gauge on a WiFi you trust |
