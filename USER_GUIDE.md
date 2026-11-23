@@ -150,7 +150,10 @@ Press **UPDATE** to save.
 SETTINGS → **WiFi Networks** lists the saved networks (up to 8, passwords
 never shown) with **DELETE**, and **ADD NETWORK** for another one —
 automatic IP or fixed IP (an empty gateway is learned from the router). At
-start-up the gauge tries the networks in range, strongest first. If none can
+start-up the gauge tries the networks in range, strongest first. When several
+access points share one network name (mesh / multi-AP), it joins the one with
+the strongest signal; the General Log shows which access point (MAC), channel
+and signal it chose. If none can
 be reached for about 5 minutes, the **RainGauge-Setup** hotspot opens for
 5 minutes so you can add one from a phone, then the gauge restarts and tries
 again.

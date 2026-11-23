@@ -1,5 +1,5 @@
 {
-  "version": "1.10.0",
+  "version": "1.10.1",
   "bin": "firmware/raingauge.bin",
-  "notes": "Time-zone setting on SETTINGS (26 zones, daylight saving automatic), default Greenwich"
+  "notes": "Joins the strongest access point when several share one WiFi name (mesh / multi-AP); the General Log shows which AP was chosen and its signal"
 }

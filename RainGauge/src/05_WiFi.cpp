@@ -87,8 +87,16 @@ static bool joinWith(const WifiCfg& c){
 	DEBUG_PRINTF("WiFi: joining %s (%s)\n", c.ssid.c_str(), c.dhcp ? "DHCP" : c.ip.toString().c_str());
 	if (c.dhcp) WiFi.config(IPAddress(0,0,0,0), IPAddress(0,0,0,0), IPAddress(0,0,0,0));   // 0.0.0.0 = DHCP
 	else        WiFi.config(c.ip, c.gw, c.sn, c.dns);
+	// Several access points may share one SSID (mesh / multi-AP). The ESP32's
+	// default fast scan joins the FIRST one found on the channel sweep; scan
+	// all channels and pick the strongest instead.
+	WiFi.setScanMethod(WIFI_ALL_CHANNEL_SCAN);
+	WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 	WiFi.begin(c.ssid.c_str(), c.pass.c_str());
-	return waitConnected();
+	if (!waitConnected()) return false;
+	SaveGenReport("WiFi: joined " + c.ssid + " via AP " + WiFi.BSSIDstr() +
+	              " (channel " + String(WiFi.channel()) + ", " + String(WiFi.RSSI()) + " dBm)");
+	return true;
 }
 
 // ── /WiFiConfig.json — a LIST of networks ────────────────────────────────────
