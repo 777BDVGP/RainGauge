@@ -1,5 +1,5 @@
 {
-  "version": "1.10.1",
+  "version": "1.10.2",
   "bin": "firmware/raingauge.bin",
-  "notes": "Joins the strongest access point when several share one WiFi name (mesh / multi-AP); the General Log shows which AP was chosen and its signal"
+  "notes": "Whole-mm rain on HOME; calibration page shows bucket position, a CALIBRATING banner with countdown and progress, and stops when you leave the page; Reports per-hour = today + yesterday, per-day = this + last month; PC-upload rows on ABOUT hidden unless ticked in SETTINGS"
 }

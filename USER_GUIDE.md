@@ -85,8 +85,16 @@ The gauge must learn how much water one tip of the bucket is.
 4. Pour exactly that amount of water **slowly** into the funnel (a few minutes).
 5. When it has all drained, press **CALCULATE**, then **SAVE**.
 
+While calibrating, an orange **CALIBRATING** banner shows the running time
+and an **auto-stop** countdown that goes back to 3:00 on every tip, so a slow
+pour of any length is fine; a bar shows roughly how much water has gone
+through. The page also shows the live **Bucket Position**.
+
 Counting stops by itself 3 minutes after the last tip; **STOP** ends it at
-once. The result shows on SETTINGS as **Water per Tip (ml) - calibrated**.
+once, and so does leaving the CALIBRATION page (the tips are kept, so
+CALCULATE still works when you come back). The result shows as
+"ml per tip (bucket size) = mm of rain per tip", and on SETTINGS as
+**Water per Tip (ml) - calibrated**.
 Calibrate again after moving or re-levelling the gauge.
 
 ## 6. Reports
@@ -94,8 +102,8 @@ Calibrate again after moving or re-levelling the gauge.
 | Report | Shows |
 |---|---|
 | Rainfall per Month | the total of every month, newest first |
-| Rainfall per Day | the total of every day, newest first |
-| Rainfall per Hour | hour by hour, newest first |
+| Rainfall per Day | every day with rain in this and last month, newest first |
+| Rainfall per Hour | every hour with rain today and yesterday, newest first |
 | Temperature records | lowest and highest outside temperature ever, with the date; **RESET TEMPERATURE RECORDS** starts only these again |
 | Temperature per Day | daily min / max |
 | Water balance | day by day: rain, evaporation, soil water, the answer (with *Water Balance*) |
@@ -134,6 +142,7 @@ result; **TEST IR SENSOR NOW** runs it at once (only with the beam OPEN).
 | | Time Zone (daylight saving automatic) | 26 zones; Greenwich out of the box; applied at once |
 | | Enable Reboot + Scheduled Reboot @ Time | a daily restart (default 00:05) |
 | | Show Memory & Tasks on ABOUT | technical readout |
+| | Show PC Upload (OTA) on ABOUT | for developers who upload from PlatformIO; off = rows hidden (normal updates are on ABOUT → CHECK FOR UPDATE) |
 | | Show Inside Temperature (HOME, REPORTS) | for a second sensor inside the box |
 | Rain Gauge | Funnel Diameter, Water per Tip, Calibration Water | section 5 |
 | | Tip Debounce (ms) | how long the beam must be steady to count a tip (default 250) |

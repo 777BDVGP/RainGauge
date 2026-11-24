@@ -17,8 +17,8 @@
 // into one bucket and the last N buckets are kept in a ring.
 
 #define RPT_MONTHS   36    // months shown
-#define RPT_DAYS     31    // most recent days with rain
-#define RPT_HOURS    24    // most recent hours with rain
+#define RPT_DAYS     62    // days with rain, THIS and the PREVIOUS calendar month only (max 62)
+#define RPT_HOURS    48    // hours with rain, TODAY and YESTERDAY only (max 48)
 
 struct RptBucket { char key[11]; float mm; };
 
@@ -60,8 +60,12 @@ static void tableRow(const char* label, float mm){
 	appendHtmlStr(buf);
 }
 
-static void tableEnd(int rows){
-	if (rows == 0) appendHtmlStr("<tr><td colspan='2' style='text-align:center'>(no rain logged)</td></tr>");
+static void tableEnd(int rows, const char* empty = "(no rain logged)"){
+	if (rows == 0){
+		appendHtmlStr("<tr><td colspan='2' style='text-align:center'>");
+		appendHtmlStr(empty);
+		appendHtmlStr("</td></tr>");
+	}
 	appendHtmlStr("</table>");
 }
 
@@ -70,6 +74,23 @@ static void appendRainfallTables(){
 	RptRing months(monthBuf, RPT_MONTHS), days(dayBuf, RPT_DAYS), hours(hourBuf, RPT_HOURS);
 	float total = 0;
 
+	// Per-hour table: only today and yesterday (local time).  Older hours stay
+	// in the file and in the day / month tables.  No clock -> no hour rows.
+	// Per-day table: only this calendar month and the previous one.
+	char todayKey[9] = "", yestKey[9] = "", monKey[7] = "", prevMonKey[7] = "";
+	if (RainTimeValid()){
+		time_t now = time(nullptr);
+		tm t = *localtime(&now);
+		strftime(todayKey, sizeof(todayKey), "%Y%m%d", &t);
+		strftime(monKey,   sizeof(monKey),   "%Y%m",   &t);
+		tm pm = t;  pm.tm_mday = 1;  pm.tm_hour = 12;  pm.tm_mon -= 1;  pm.tm_isdst = -1;
+		mktime(&pm);                                           // January -> December last year
+		strftime(prevMonKey, sizeof(prevMonKey), "%Y%m", &pm);
+		t.tm_mday -= 1;  t.tm_hour = 12;  t.tm_isdst = -1;   // noon: safe across DST changes
+		mktime(&t);
+		strftime(yestKey, sizeof(yestKey), "%Y%m%d", &t);
+	}
+
 	File lf = SPIFFS.open(RainLogFile(), "r");
 	if (lf){
 		while (lf.available()){
@@ -77,8 +98,8 @@ static void appendRainfallTables(){
 			if (s.length() < 11) continue;
 			float mm = s.substring(10).toFloat();
 			months.add(s, 6,  mm);
-			days.add  (s, 8,  mm);
-			hours.add (s, 10, mm);
+			if (monKey[0] && (s.startsWith(monKey) || s.startsWith(prevMonKey))) days.add(s, 8, mm);
+			if (todayKey[0] && (s.startsWith(todayKey) || s.startsWith(yestKey))) hours.add(s, 10, mm);
 			total += mm;
 		}
 		lf.close();
@@ -95,7 +116,7 @@ static void appendRainfallTables(){
 	}
 	tableEnd(months.shown());
 
-	tableStart("Rainfall per Day", "Date");
+	tableStart("Rainfall per Day (this and last month)", "Date");
 	for (int k = 0; k < days.shown(); k++){
 		const RptBucket& d = days.newest(k);
 		int mon = atoi(String(d.key).substring(4, 6).c_str());
@@ -103,9 +124,9 @@ static void appendRainfallTables(){
 		         (mon >= 1 && mon <= 12) ? MONTH_NAME[mon - 1] : "?", d.key);                           // "20 November 2026"
 		tableRow(label, d.mm);
 	}
-	tableEnd(days.shown());
+	tableEnd(days.shown(), monKey[0] ? "(no rain this or last month)" : "(clock not set)");
 
-	tableStart("Rainfall per Hour", "Date - Hour");
+	tableStart("Rainfall per Hour (today and yesterday)", "Date - Hour");
 	for (int k = 0; k < hours.shown(); k++){
 		const RptBucket& h = hours.newest(k);
 		int mon = atoi(String(h.key).substring(4, 6).c_str());
@@ -113,7 +134,7 @@ static void appendRainfallTables(){
 		         (mon >= 1 && mon <= 12) ? MONTH_NAME[mon - 1] : "?", h.key, h.key + 8);              // "20 Nov 2026 - 14h00"
 		tableRow(label, h.mm);
 	}
-	tableEnd(hours.shown());
+	tableEnd(hours.shown(), todayKey[0] ? "(no rain today or yesterday)" : "(clock not set)");
 
 	snprintf(label, sizeof(label), "%.1f mm", total);
 	appendHtmlStr("<p style='color:#475569;font-size:11px;padding:4px 8px'>Total in ");

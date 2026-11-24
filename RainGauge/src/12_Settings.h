@@ -37,6 +37,7 @@ public:
 	String SysName             = "Rain Gauge"; // Displayed in the H01 page header
 	bool   LogGeneralEvents    = true;         // Append timestamped entries to GeneralLog.txt
 	bool   ShowSysInfo         = false;        // ABOUT: show Memory + Tasks sections (diagnostics)
+	bool   ShowOtaInfo         = false;        // ABOUT: show the PC-upload (ArduinoOTA) rows — upload works either way
 	bool   ShowInsideTemp      = false;        // HOME / REPORTS / SIMULATION: show the inside (internal) temperature
 	String TimeZone            = TZ_DEFAULT_LABEL; // a TZ_OPTIONS label (02_Time.cpp) — SETTINGS dropdown
 
@@ -114,7 +115,9 @@ String ControllerName();
 
 	#define SET_TIME_ZONE        23   // Time zone dropdown (02_Time.cpp TZ_OPTIONS)
 
-	#define PAGE_VAR_SETTINGS    24   // Total number of settings page PageVar entries
+	#define SET_SHOW_OTA         24   // ABOUT: show PC-upload (OTA) rows checkbox
+
+	#define PAGE_VAR_SETTINGS    25   // Total number of settings page PageVar entries
 
 // =============================================================================
 // Static Page Build Buffer  (WT_* table content only)

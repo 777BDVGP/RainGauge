@@ -8,6 +8,7 @@
 #include "all_includes.h"
 
 static uint32_t calLastTipMs = 0;
+static uint32_t calStartMs   = 0;     // when START was pressed (banner running time)
 static String   totalsDayKey = "";     // YYYYMMDD the logged totals belong to
 static String   pendingKey   = "";     // YYYYMMDDHH of the first tip in the open window
 
@@ -133,6 +134,17 @@ void MaintainRain(){
 	static bool known = false;
 	static bool prev  = false;
 
+	// Left the CALIBRATION page while calibrating -> stop (tips are kept,
+	// so CALCULATE still works after coming back).
+	if (CalStopRequested){
+		CalStopRequested = false;
+		if (CalActive){
+			CalCommand(0, "stop");
+			CalStatus = "Stopped (page left) - " + String(CalTips) + " tips";
+			SendCalibrationValues(true);
+		}
+	}
+
 	// ── Simulation on/off (18_Simulation.cpp).  Flush the open window to the
 	//    log it belongs to BEFORE switching files, then re-total from the
 	//    other log and re-learn the pickup's resting state.
@@ -206,6 +218,7 @@ void CalCommand(uint32_t clientId, const String& cmd){
 		CalTips      = 0;
 		CalResult    = 0;
 		calLastTipMs = millis();
+		calStartMs   = calLastTipMs;
 		CalStatus    = "Started - pour " + String(Params->CalWaterMl) + " ml slowly";
 	}
 	else if (cmd == "stop"){
@@ -239,12 +252,12 @@ static String calResultText(){
 	if (CalResult <= 0) return "-";
 	float area = funnelAreaMm2();
 	float mm   = area > 0 ? CalResult * 1000.0f / area : 0;
-	return String(CalResult, 3) + " ml/tip  =  " + String(mm, 4) + " mm/tip";
+	return String(CalResult, 2) + " ml per tip (bucket size)<br>= " + String(mm, 3) + " mm of rain per tip";
 }
 
 static String calCurrentText(){
-	return String(Params->MlPerTip, 3) + " ml/tip  =  " + String(RainMmPerTip(), 4) +
-	       " mm/tip  (calibrated: " + Params->CalDate + ")";
+	return String(Params->MlPerTip, 2) + " ml per tip (bucket size)<br>= " + String(RainMmPerTip(), 3) +
+	       " mm of rain per tip<br><span style='color:#64748b'>calibrated: " + Params->CalDate + "</span>";
 }
 
 // Push the calibration fields that changed (force = all).  Every 500 ms from
@@ -258,6 +271,48 @@ void SendCalibrationValues(bool force){
 	if (force || CalStatus != lastStat){ webParamUpdate(CalStatus,      "CALSTAT", ""); lastStat = CalStatus; }
 	if (force || res != lastRes)       { webParamUpdate(res,            "CALRES",  ""); lastRes  = res; }
 	if (force || cur != lastCur)       { webParamUpdate(cur,            "CALCUR",  ""); lastCur  = cur; }
+	// Banner: is a calibration running?  + estimated water poured so far
+	// (tips x the CURRENT ml/tip — only a guide until the new value is saved).
+	// Colours / pulse are CSS classes on the page (webParamUpdate max 256 bytes).
+	static String lastBan, lastSub, lastCls, lastBar, lastBarTx;
+	String ban, sub, cls, bar, barTx;
+	if (CalActive){
+		uint32_t run  = (millis() - calStartMs) / 1000;
+		uint32_t idle = (millis() - calLastTipMs) / 1000;
+		uint32_t left = idle >= CAL_TIMEOUT_MS / 1000 ? 0 : CAL_TIMEOUT_MS / 1000 - idle;
+		char t[64];
+		snprintf(t, sizeof(t), "&#9679; CALIBRATING &mdash; %lu:%02lu", (unsigned long)(run / 60), (unsigned long)(run % 60));
+		ban = t;
+		snprintf(t, sizeof(t), "auto-stop in %lu:%02lu without a tip", (unsigned long)(left / 60), (unsigned long)(left % 60));
+		sub = t;
+		cls = "cb cbrun";
+	} else if (CalResult > 0){
+		ban = "CALCULATED &mdash; press SAVE";  sub = "&nbsp;";  cls = "cb cbres";
+	} else {
+		ban = "NOT CALIBRATING";  sub = "press START to begin";  cls = "cb cbidle";
+	}
+	int pct = 0;
+	if (CalActive || CalTips > 0){
+		float ml = CalTips * Params->MlPerTip;
+		pct = Params->CalWaterMl > 0 ? (int)(ml * 100.0f / Params->CalWaterMl) : 0;
+		if (pct > 100) pct = 100;
+		barTx = "&asymp; " + String((long)lroundf(ml)) + " of " + String(Params->CalWaterMl) + " ml through the bucket";
+	} else {
+		barTx = "&nbsp;";
+	}
+	bar = "width:" + String(pct) + "%";
+	if (force || ban != lastBan || cls != lastCls){ webParamUpdate(ban, "CALBAN", cls, "class"); lastBan = ban; lastCls = cls; }
+	if (force || sub != lastSub)    { webParamUpdate(sub,   "CALBANSUB", "");  lastSub   = sub; }
+	if (force || bar != lastBar)    { webParamUpdate("",    "CALBAR",    bar); lastBar   = bar; }
+	if (force || barTx != lastBarTx){ webParamUpdate(barTx, "CALBARTX",  "");  lastBarTx = barTx; }
+
+	// Bucket position, same reading as HOME (HIGH = dark = beam broken)
+	static int lastBeam = -1;
+	int beam = InPort[IIDX_IR_PICKUP].Input ? 1 : 0;
+	if (force || beam != lastBeam){
+		webParamUpdate(beam ? "BROKEN" : "OPEN", "CALBEAM", beam ? ATT_RED : ATT_GREEN);
+		lastBeam = beam;
+	}
 }
 
 // -----------------------------------------------------------------------------
@@ -287,11 +342,23 @@ void handleCalibrate(AsyncWebServerRequest *request){
 	              "<p style='color:#64748b;font-size:11px;margin:0 0 8px 8px'>Counting stops by itself 3 minutes after the last tip. "
 	              "The water amount is set on the Settings page.</p>");
 
+	appendHtmlStr("<style>@keyframes calpulse{0%,100%{opacity:1}50%{opacity:.55}}"
+	              ".cb{display:block;text-align:center;font-weight:800;font-size:17px;letter-spacing:1px;padding:10px 10px 2px;"
+	              "border-radius:8px 8px 0 0;color:#fff}"
+	              ".cbidle{background:#94a3b8}.cbres{background:#0284c7}"
+	              ".cbrun{background:#ea580c;animation:calpulse 1.2s ease-in-out infinite}"
+	              "#CALBANSUB{display:block;text-align:center;font-size:11px;color:#fff;background:#475569;"
+	              "padding:3px;border-radius:0 0 8px 8px;margin-bottom:6px}"
+	              "#CALBAR{display:block;height:14px;border-radius:7px;background:#ea580c;width:0;transition:width .4s}</style>"
+	              "<span id='CALBAN' class='cb cbidle'>-</span><span id='CALBANSUB'>&nbsp;</span>"
+	              "<div style='background:#e2e8f0;border-radius:7px;height:14px;margin:4px 0 2px'><span id='CALBAR'></span></div>"
+	              "<div style='text-align:center;font-size:11px;color:#64748b;margin-bottom:6px'><span id='CALBARTX'>&nbsp;</span></div>");
 	appendHtmlStr("<table>"
+	              "<tr><td>Bucket Position (IR beam)</td><td><span id='CALBEAM'>-</span></td></tr>"
 	              "<tr><td>Tips counted</td><td><span id='CALTIPS' style='font-size:20px;font-weight:800;color:#0284c7'>0</span></td></tr>"
 	              "<tr><td>Status</td><td><span id='CALSTAT'>-</span></td></tr>"
 	              "<tr><td>Result</td><td><span id='CALRES'>-</span></td></tr>"
-	              "<tr><td>Current</td><td><span id='CALCUR' style='font-size:11px'>-</span></td></tr>"
+	              "<tr><td>Current</td><td><span id='CALCUR' style='font-size:12px'>-</span></td></tr>"
 	              "</table>");
 
 	appendHtmlStr("<div class='btns'>"
@@ -304,7 +371,12 @@ void handleCalibrate(AsyncWebServerRequest *request){
 	              "</div>");
 
 	// Fill the live fields as soon as the WebSocket is up.
-	appendHtmlStr("<script>setTimeout(function(){CalCmd('show');},800);</script>");
+	// Leaving the page (BACK, menu, closing the tab) stops a running calibration.
+	// pagehide does not fire when a phone screen just turns off, so a pour in
+	// progress is not interrupted by that.  sendBeacon still gets out while the
+	// page unloads (a WebSocket message would not).
+	appendHtmlStr("<script>setTimeout(function(){CalCmd('show');},800);"
+	              "window.addEventListener('pagehide',function(){navigator.sendBeacon('/calstop');});</script>");
 
 	appendHtmlStr(webHTMLEnd);
 	sendHtmlPage(request);

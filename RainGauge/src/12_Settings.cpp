@@ -24,11 +24,12 @@ void AllParams::WriteData()
 {
 	String StrFileName = "/AllParams.json";
 	File ChannelDataFile = SPIFFS.open(StrFileName, "w");
-	DynamicJsonDocument doc(1024);
+	DynamicJsonDocument doc(2048);
 
 	doc["SysName"]          = SysName;
 	doc["LogGeneralEvents"] = LogGeneralEvents;
 	doc["ShowSysInfo"]      = ShowSysInfo;
+	doc["ShowOtaInfo"]      = ShowOtaInfo;
 	doc["ShowInsideTemp"]   = ShowInsideTemp;
 	doc["RebootEnable1"]    = RebootEnable1;
 	doc["RebootTime1"]      = RebootTime1;
@@ -68,13 +69,14 @@ void AllParams::ReadData()
 	File ChannelDataFile = SPIFFS.open(StrFileName, "r");
 	if (ChannelDataFile)
 	{
-		DynamicJsonDocument doc(1024);
+		DynamicJsonDocument doc(2048);
 		auto error = deserializeJson(doc, ChannelDataFile);
 		if (!error)
 		{
 			if ( !doc["SysName"].isNull()          ){ SysName          = doc["SysName"].as<String>(); }
 			if ( !doc["LogGeneralEvents"].isNull() ){ LogGeneralEvents = doc["LogGeneralEvents"].as<bool>(); }
 			if ( !doc["ShowSysInfo"].isNull()      ){ ShowSysInfo      = doc["ShowSysInfo"].as<bool>(); }
+			if ( !doc["ShowOtaInfo"].isNull()      ){ ShowOtaInfo      = doc["ShowOtaInfo"].as<bool>(); }
 			if ( !doc["ShowInsideTemp"].isNull()   ){ ShowInsideTemp   = doc["ShowInsideTemp"].as<bool>(); }
 			if ( !doc["RebootEnable1"].isNull()    ){ RebootEnable1    = doc["RebootEnable1"].as<bool>(); }
 			if ( !doc["RebootTime1"].isNull()      ){ RebootTime1      = doc["RebootTime1"].as<String>(); }
@@ -195,6 +197,9 @@ void MapSettingsPage(){
 			case SET_SHOW_SYSINFO:
 				SettingsList[i].Var = new PageElement(&Params->ShowSysInfo, F("Show Memory & Tasks on ABOUT"), "", &SetStyle, i+ID_SETTINGS);
 				break;
+			case SET_SHOW_OTA:
+				SettingsList[i].Var = new PageElement(&Params->ShowOtaInfo, F("Show PC Upload (OTA) on ABOUT"), "", &SetStyle, i+ID_SETTINGS);
+				break;
 			case SET_SHOW_INSIDE:
 				SettingsList[i].Var = new PageElement(&Params->ShowInsideTemp, F("Show Inside Temperature (HOME, REPORTS)"), "", &SetStyle, i+ID_SETTINGS);
 				break;
@@ -301,6 +306,7 @@ void WT_SETUP_Settings(){
 	}
 	WT_EditRow(&SettingsList[SET_TIME_ZONE]);
 	WT_EditRow(&SettingsList[SET_SHOW_SYSINFO]);
+	WT_EditRow(&SettingsList[SET_SHOW_OTA]);
 	WT_EditRow(&SettingsList[SET_SHOW_INSIDE]);
 	WT_CheckEditRow(&SettingsList[SET_REBOOT_EN1], &SettingsList[SET_REBOOT_TIME1], "time");
 

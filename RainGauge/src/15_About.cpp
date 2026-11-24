@@ -194,6 +194,9 @@ static void buildAboutTable() {
     WT_StartPage();
     WT_StartTable("PARAMETER", "VALUE", "");
 
+    // PC upload (ArduinoOTA) rows: only with SETTINGS "Show PC Upload (OTA) on
+    // ABOUT".  ArduinoOTA itself stays on either way — hiding is cosmetic.
+    if (Params->ShowOtaInfo){
     // Row 1 — OTA status (live: JS setOtaStatus() updates value + colour via WebSocket)
     WT_StartLine();
     WT_Column(WT_LABEL, WT_FIRST, WT_LAST, "text", "OTA (Over-The-Air) Updates", "OTA_L1",     "",          nullptr);
@@ -201,6 +204,7 @@ static void buildAboutTable() {
     WT_EndLine();
 
     aboutRow("OTA_L2", "OTA Terminal Command", "OTA_V2", otaCmd.c_str(), "font-size:11px");
+    }   // ShowOtaInfo
 
     WT_SectionHeader("Network");
     aboutRow("NET_L1", "WiFi Network",       "NET_V1", ssid.c_str());

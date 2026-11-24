@@ -143,8 +143,8 @@ void UpdateHomeValues(){
 	HomeEt0    = isnan(WB.lastEt0) ? String("- (first day not finished)") : String(WB.lastEt0, 2) + " mm";
 	HomeTodayT   = TempTodayText(TH.out);
 	HomeTodayTIn = TempTodayText(TH.in);
-	HomeRainToday = String(RainTodayMm(), 2) + " mm";
-	HomeRainMonth = String(RainMonthMm(), 2) + " mm";
+	HomeRainToday = String((long)lroundf(RainTodayMm())) + " mm";
+	HomeRainMonth = String((long)lroundf(RainMonthMm())) + " mm";
 	HomeLastTip   = RainLastTip;
 	HomeTips      = (int)RainTipsSinceBoot;
 	HomeMmPerTip  = String(RainMmPerTip(), 3) + " mm" + (Params->CalDate == "never" ? "  (NOT calibrated)" : "");

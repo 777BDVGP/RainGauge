@@ -42,6 +42,7 @@
 
 // ─── Calibration state ───────────────────────────────────────────────────────
 	inline bool     CalActive  = false;
+	inline volatile bool CalStopRequested = false;  // POST /calstop (leaving the CALIBRATION page; async_tcp -> loop)
 	inline uint32_t CalTips    = 0;
 	inline float    CalResult  = 0;            // ml per tip from the last CALCULATE (0 = none)
 	inline String   CalStatus  = "Idle";

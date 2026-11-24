@@ -213,6 +213,9 @@ void AddRoutes(){
 	server.on("/",         handleRoot);      // Home page        (08_Home.cpp)
 	server.on("/settings", handleSettings);  // System settings  (12_Settings.cpp)
 	server.on("/calibrate",handleCalibrate); // Rain calibration (16_Rain.cpp) — via SETTINGS
+	// Leaving the CALIBRATION page stops a running calibration (sendBeacon on pagehide).
+	// Only raises a flag — MaintainRain() does the stop in loop().
+	server.on("/calstop", HTTP_POST, [](AsyncWebServerRequest *request){ CalStopRequested = true; request->send(204); });
 	server.on("/simulate", handleSimulate);  // Simulation mode  (18_Simulation.cpp) — via SETTINGS
 	server.on("/reports",  handleReports);   // Reports          (10_Reports.cpp)
 	server.on("/ntfy",     handleNtfy);      // NTFY push        (13_Ntfy.cpp)
