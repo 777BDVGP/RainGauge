@@ -105,6 +105,7 @@ void   appendWifiNetsSection();
 void   handleWifiNetAdd(AsyncWebServerRequest *request);
 void   handleWifiNetDelete(AsyncWebServerRequest *request);
 void   MaintainWifiNets();
+void   handleWifiScan(AsyncWebServerRequest *request);
 
 // ─── 22_Update.cpp ────────────────────────────────────────────────────────────
 void   handleFwCheck(AsyncWebServerRequest* r);

@@ -1,5 +1,5 @@
 {
-  "version": "1.10.2",
+  "version": "1.10.3",
   "bin": "firmware/raingauge.bin",
-  "notes": "Whole-mm rain on HOME; calibration page shows bucket position, a CALIBRATING banner with countdown and progress, and stops when you leave the page; Reports per-hour = today + yesterday, per-day = this + last month; PC-upload rows on ABOUT hidden unless ticked in SETTINGS"
+  "notes": "Networks-in-range list when adding a WiFi network; built-in networks of a private build kept in the list"
 }

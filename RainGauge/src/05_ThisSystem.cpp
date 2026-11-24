@@ -229,6 +229,7 @@ void AddRoutes(){
 	server.on("/startfresh", HTTP_POST, handleStartFresh);  // SETTINGS "START FRESH" (12_Settings.cpp)
 	server.on("/wifinet/add",    HTTP_POST, handleWifiNetAdd);    // SETTINGS "WiFi Networks" (05_WiFi.cpp)
 	server.on("/wifinet/delete", HTTP_POST, handleWifiNetDelete);
+	server.on("/wifiscan",       HTTP_GET,  handleWifiScan);      // SETTINGS "Networks in range" (05_WiFi.cpp)
 	server.on("/fwcheck",    HTTP_POST, handleFwCheck);          // ABOUT "CHECK FOR UPDATE" (22_Update.cpp)
 	server.on("/fwinstall",  HTTP_POST, handleFwInstall);        // ABOUT "INSTALL FROM GITHUB"
 	server.on("/update",     HTTP_POST, handleFwUploadDone, handleFwUploadData);  // ABOUT ".bin upload"

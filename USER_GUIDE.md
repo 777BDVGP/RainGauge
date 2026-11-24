@@ -158,7 +158,10 @@ Press **UPDATE** to save.
 
 SETTINGS → **WiFi Networks** lists the saved networks (up to 8, passwords
 never shown) with **DELETE**, and **ADD NETWORK** for another one —
-automatic IP or fixed IP (an empty gateway is learned from the router). At
+automatic IP or fixed IP (an empty gateway is learned from the router). The
+**Networks in range** list above the name box shows the networks the gauge can
+see right now (strongest first, open / locked, already saved) — pick one
+instead of typing the name; **SCAN AGAIN** refreshes it. At
 start-up the gauge tries the networks in range, strongest first. When several
 access points share one network name (mesh / multi-AP), it joins the one with
 the strongest signal; the General Log shows which access point (MAC), channel

@@ -189,6 +189,30 @@ static bool deleteNet(const String& ssid){
 	return true;
 }
 
+// Write EVERY built-in network (KNOWN_NETS, private firmware) into
+// /WiFiConfig.json, not only the one joined: after "INSTALL FROM GITHUB" the
+// gauge runs the public firmware, which has no built-in networks, and then
+// knows only this file — so a gauge set up at one place must still find the
+// other places' networks.  The gateway is left out and learned from the
+// router at the first join there (needsLearning).  An entry already in the
+// file (same SSID) is kept as it is.  Same as Hydro17_WaterSystem 2.0.2.
+static void seedKnownNets(){
+	if (KNOWN_NET_COUNT == 0) return;
+	WifiCfg nets[WIFI_MAX_NETS];
+	int n = loadNets(nets, WIFI_MAX_NETS), before = n;
+	for (int i = 0; i < KNOWN_NET_COUNT; i++){
+		bool have = false;
+		for (int j = 0; j < n; j++) if (nets[j].ssid == KNOWN_NETS[i].ssid) have = true;
+		if (have || n >= WIFI_MAX_NETS) continue;
+		WifiCfg c;
+		c.ssid = KNOWN_NETS[i].ssid; c.pass = KNOWN_NETS[i].pass; c.dhcp = false;
+		c.ip   = IPAddress(KNOWN_NETS[i].ip[0], KNOWN_NETS[i].ip[1], KNOWN_NETS[i].ip[2], KNOWN_NETS[i].ip[3]);
+		nets[n++] = c;                     // appended: existing entries keep their order
+		SaveGenReport("WiFi: built-in network " + c.ssid + " (" + c.ip.toString() + ") added to the saved networks");
+	}
+	if (n != before) saveNets(nets, n);
+}
+
 // ── Step 1: saved networks ───────────────────────────────────────────────────
 // Scan, then try the saved networks that are in range, strongest first, and
 // after them the ones not seen (hidden SSIDs, weak signal).  With a single
@@ -468,6 +492,7 @@ bool SetupWiFi() {
 	WiFi.setHostname(WIFI_HOSTNAME);
 	WiFi.mode(WIFI_STA);
 	WiFi.setSleep(false);
+	seedKnownNets();                 // all built-in networks into the file (survive a public update)
 
 	// Brand-new gauge (public firmware, nothing saved): nothing to try — set up.
 	if (!SPIFFS.exists(StrWiFiConfig) && KNOWN_NET_COUNT == 0)
@@ -535,6 +560,9 @@ and add a network there. Changes are used at the next start. Passwords are never
 static const char WN_SECTION_ADD[] PROGMEM = R"HTML(</table>
 <div class='noupd' style='margin:8px 0;padding:8px;border:1px solid #cbd5e1;border-radius:6px;font-size:13px'>
 <b>Add a network</b> (the same name again replaces that entry)<br>
+<select id='wn_scan' onchange="if(this.value)document.getElementById('wn_ssid').value=this.value" style='width:300px;margin:4px 0'>
+<option value=''>Networks in range: scanning...</option></select>
+<button class='btn btn-bl' style='padding:3px 10px;font-size:11px' onclick='wnScan()'>SCAN AGAIN</button><br>
 <input id='wn_ssid' placeholder='WiFi network name' style='width:200px;margin:4px 0'>
 <input id='wn_pass' type='password' placeholder='password (empty = open network)' style='width:200px;margin:4px 0'><br>
 <label><input type='radio' name='wn_mode' id='wn_dhcp' checked onclick="wnFix(0)"> Automatic IP (DHCP)</label>
@@ -558,6 +586,19 @@ function wnAdd(){var v=function(i){return encodeURIComponent(document.getElement
  wnPost('/wifinet/add',b);}
 function wnDel(s,cur){if(!confirm('Delete the WiFi network '+s+'?'+(cur?' The gauge is connected to it now: it stays connected until the next start, then tries the other networks.':'')))return;
  wnPost('/wifinet/delete','ssid='+encodeURIComponent(s));}
+var wnTries=0;
+function wnScanShow(j){var sel=document.getElementById('wn_scan');sel.innerHTML='';
+ var o=document.createElement('option');o.value='';
+ o.textContent=j.nets.length?('Networks in range ('+j.nets.length+') - pick one:'):'No networks in range - SCAN AGAIN';sel.appendChild(o);
+ j.nets.forEach(function(n){var e=document.createElement('option');e.value=n.s;
+  e.textContent=n.s+'   ('+n.r+' dBm'+(n.l?', locked':', open')+(n.v?', saved':'')+')';sel.appendChild(e);});}
+function wnPoll(){fetch('/wifiscan').then(function(r){return r.json();}).then(function(j){
+ if(j.status=='done'){wnScanShow(j);return;}
+ if(++wnTries<20)setTimeout(wnPoll,1000);else document.getElementById('wn_scan').options[0].textContent='Scan failed - SCAN AGAIN';})
+ .catch(function(){if(++wnTries<20)setTimeout(wnPoll,1500);});}
+function wnScan(){wnTries=0;document.getElementById('wn_scan').innerHTML="<option value=''>Networks in range: scanning...</option>";
+ fetch('/wifiscan?start=1').then(function(){setTimeout(wnPoll,2500);}).catch(function(){setTimeout(wnPoll,2500);});}
+wnScan();
 </script>
 )HTML";
 
@@ -602,8 +643,84 @@ void handleWifiNetDelete(AsyncWebServerRequest *request){
 	request->send(200, "text/plain", "OK - " + s + " deleted");
 }
 
+// ── Networks in range (SETTINGS "Add a network" drop-down) ───────────────────
+// GET /wifiscan?start=1 asks for a scan; GET /wifiscan returns
+// {"status":"scanning"} or {"status":"done","nets":[{s,r,l,v},...]}
+// (SSID, RSSI dBm, locked, already saved) strongest first, each SSID once.
+// The scan is started and collected in loop() (MaintainWifiNets) with the
+// non-blocking WiFi.scanNetworks(true) — the gauge keeps counting tips and
+// stays connected; async_tcp only reads the finished result.
+// Same code as Hydro17_WaterSystem (2026-11-24).
+static volatile int  wnScanState = 0;      // 0 idle, 1 requested, 2 scanning, 3 done
+static String        wnScanJson;           // written by loop() before state 3
+
+void handleWifiScan(AsyncWebServerRequest *request){
+	if (request->hasArg("start")){
+		if (wnScanState != 1 && wnScanState != 2) wnScanState = 1;
+		request->send(200, "application/json", "{\"status\":\"scanning\"}");
+		return;
+	}
+	if (wnScanState == 3) request->send(200, "application/json", wnScanJson);
+	else                  request->send(200, "application/json", "{\"status\":\"scanning\"}");
+}
+
+static void wifiScanStep(){
+	static uint32_t startMs = 0;
+	if (wnScanState == 1){
+		WiFi.scanDelete();
+		if (WiFi.scanNetworks(true) == WIFI_SCAN_FAILED){        // true = async, returns at once
+			wnScanJson = "{\"status\":\"done\",\"nets\":[]}";
+			wnScanState = 3;
+			return;
+		}
+		startMs = millis();
+		wnScanState = 2;
+		return;
+	}
+	if (wnScanState != 2) return;
+	int n = WiFi.scanComplete();
+	if (n == WIFI_SCAN_RUNNING){
+		if (millis() - startMs < 15000) return;
+		n = 0;                                                    // took too long: report nothing
+	}
+	if (n < 0) n = 0;
+
+	WifiCfg saved[WIFI_MAX_NETS];
+	int ns = loadNets(saved, WIFI_MAX_NETS);
+	DynamicJsonDocument doc(3072);
+	doc["status"] = "done";
+	JsonArray a = doc.createNestedArray("nets");
+	bool used[64] = { false };
+	int m = n < 64 ? n : 64;
+	for (int k = 0; k < m; k++){                                  // strongest first, each SSID once
+		int best = -1;
+		for (int j = 0; j < m; j++)
+			if (!used[j] && (best < 0 || WiFi.RSSI(j) > WiFi.RSSI(best))) best = j;
+		if (best < 0) break;
+		used[best] = true;
+		String s = WiFi.SSID(best);
+		if (s.length() == 0) continue;                            // hidden network
+		bool dup = false;
+		for (JsonObject o : a) if (s == o["s"].as<const char*>()) { dup = true; break; }
+		if (dup) continue;
+		bool isSaved = false;
+		for (int i = 0; i < ns; i++) if (saved[i].ssid == s) isSaved = true;
+		JsonObject o = a.createNestedObject();
+		o["s"] = s;
+		o["r"] = WiFi.RSSI(best);
+		o["l"] = WiFi.encryptionType(best) != WIFI_AUTH_OPEN;
+		o["v"] = isSaved;
+	}
+	WiFi.scanDelete();
+	String out;
+	serializeJson(doc, out);
+	wnScanJson  = out;
+	wnScanState = 3;
+}
+
 // Called every 10 ms from loop().
 void MaintainWifiNets(){
+	wifiScanStep();
 	if (wnAddReq){
 		addNet(wnPendingAdd);
 		SaveGenReport("WiFi: network " + wnPendingAdd.ssid + " added on SETTINGS" +
