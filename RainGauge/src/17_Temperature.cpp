@@ -59,8 +59,23 @@ void MaintainTemperature(){
 	CheckTempAlerts(TempExternal);                           // NTFY high / low outside alerts (13_Ntfy.cpp)
 }
 
-// "23.5 °C" or "--" when the sensor isn't there.
+// ── Display unit (SETTINGS "Temperature Unit") ─────────────────────────────
+// Everything is measured and STORED in °C (history files, water balance, NTFY
+// limits, /api/irrigate).  Only what a person reads is converted.
+bool TempIsF(){ return Params && Params->TempUnit == "Fahrenheit"; }
+const char* TempUnitSym(){ return TempIsF() ? "°F" : "°C"; }
+// °C -> display unit (a difference, e.g. a 1 °C hysteresis, uses TempDeltaDisp).
+float TempDisp(float c){ return TempIsF() ? c * 9.0f / 5.0f + 32.0f : c; }
+float TempDeltaDisp(float dc){ return TempIsF() ? dc * 9.0f / 5.0f : dc; }
+// display unit -> °C (for values typed on a page)
+float TempFromDisp(float v){ return TempIsF() ? (v - 32.0f) * 5.0f / 9.0f : v; }
+// "23.5" in the display unit, "" for NAN
+String TempNum(float c){ return isnan(c) ? String("") : String(TempDisp(c), 1); }
+// A °C value kept as text in a log line ("23.5", or "" = none) -> display unit
+String TempNumStr(const String& cText){ return cText.length() ? String(TempDisp(cText.toFloat()), 1) : cText; }
+
+// "23.5 °C" / "74.3 °F" or "--" when the sensor isn't there.
 String TempText(float c){
 	if (isnan(c)) return "--";
-	return String(c, 1) + " °C";
+	return TempNum(c) + " " + TempUnitSym();
 }

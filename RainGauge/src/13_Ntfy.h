@@ -35,6 +35,12 @@ public:
 	float  TempLowC           = 0.0;
 };
 
+// The NTFY page edits the two limits in the DISPLAY unit (SETTINGS
+// "Temperature Unit"); these copies are bound to the page and converted back
+// to °C on UPDATE (UpdateNtfyPageValues).  TempHighC / TempLowC stay in °C.
+	inline float NtfyHighDisp = 35.0;
+	inline float NtfyLowDisp  = 0.0;
+
 // ─── NTFY Page Row Index Constants ───────────────────────────────────────────
 #define NTFY_CODE            0   // NTFY topic name
 #define NTFY_EN_IR_FAULT     1   // Enable checkbox — IR sensor fault alert

@@ -247,7 +247,7 @@ void SendSimulationValues(bool force){
 	static String   lastStat;
 	static uint32_t lastQ = UINT32_MAX;
 	static String   lastLive;
-	String live = SimActive ? ("ON - outside " + String(SimOutsideTemp(), 1) + " °C, today " +
+	String live = SimActive ? ("ON - outside " + TempNum(SimOutsideTemp()) + " " + TempUnitSym() + ", today " +
 	                           String(RainTodayMm(), 2) + " mm, tips since boot " + String(RainTipsSinceBoot))
 	                        : String("OFF - real sensors in use");
 	if (force || SimStatus != lastStat){ webParamUpdate(SimStatus,              "SIMSTAT", ""); lastStat = SimStatus; }

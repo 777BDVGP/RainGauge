@@ -45,6 +45,7 @@ void AllParams::WriteData()
 	doc["IrriSkipHours"]    = IrriSkipHours;
 
 	doc["TimeZone"]         = TimeZone;
+	doc["TempUnit"]         = TempUnit;
 	doc["IrriMode"]         = IrriMode;
 	doc["Latitude"]         = Latitude;
 	doc["CropKc"]           = CropKc;
@@ -92,6 +93,7 @@ void AllParams::ReadData()
 			if ( !doc["IrriSkipHours"].isNull()    ){ IrriSkipHours    = doc["IrriSkipHours"].as<int>(); }
 
 			if ( !doc["TimeZone"].isNull()         ){ TimeZone         = doc["TimeZone"].as<String>(); }
+			if ( !doc["TempUnit"].isNull()         ){ TempUnit         = doc["TempUnit"].as<String>(); }
 			if ( !doc["IrriMode"].isNull()         ){ IrriMode         = doc["IrriMode"].as<String>(); }
 			if ( !doc["Latitude"].isNull()         ){ Latitude         = doc["Latitude"].as<float>(); }
 			if ( !doc["CropKc"].isNull()           ){ CropKc           = doc["CropKc"].as<float>(); }
@@ -219,6 +221,12 @@ void MapSettingsPage(){
 				SettingsList[i].Var->SetStringToSelect(TZ_OPTION_COUNT);
 				for (int k = 0; k < TZ_OPTION_COUNT; k++) SettingsList[i].Var->AddOption(TZ_OPTIONS[k].label);
 				break;
+			case SET_TEMP_UNIT:
+				SettingsList[i].Var = new PageElement(&Params->TempUnit, F("Temperature Unit"), "", &SetStyle, i+ID_SETTINGS);
+				SettingsList[i].Var->SetStringToSelect(2);   // must match the number of AddOption calls
+				SettingsList[i].Var->AddOption("Celsius");
+				SettingsList[i].Var->AddOption("Fahrenheit");
+				break;
 		}
 	}
 }
@@ -305,6 +313,7 @@ void WT_SETUP_Settings(){
 		WT_EditRow(&SettingsList[i]);
 	}
 	WT_EditRow(&SettingsList[SET_TIME_ZONE]);
+	WT_EditRow(&SettingsList[SET_TEMP_UNIT]);
 	WT_EditRow(&SettingsList[SET_SHOW_SYSINFO]);
 	WT_EditRow(&SettingsList[SET_SHOW_OTA]);
 	WT_EditRow(&SettingsList[SET_SHOW_INSIDE]);
@@ -372,6 +381,7 @@ void SendSettingsPageValues(){
 void UpdateSettingsPageValues(uint32_t clientId, JsonObject *root){
 	String oldMode = Params->IrriMode;
 	String oldTz   = Params->TimeZone;
+	String oldUnit = Params->TempUnit;
 
 	for (JsonPair kv : *root){
 		for (int i=0; i < PAGE_VAR_SETTINGS; i++)
@@ -392,5 +402,10 @@ void UpdateSettingsPageValues(uint32_t clientId, JsonObject *root){
 	}
 	UpdateTimerTimes();
 	// Method changed: the page shows other sections now — let the browser reload it.
-	if (Params->IrriMode != oldMode) ws.text(clientId, "{\"type\":\"reload\"}");
+	if (Params->TempUnit != oldUnit){
+		SaveGenReport("Temperature unit set to " + Params->TempUnit);
+		RefreshTempUnitLabels();   // NTFY limits / labels in the new unit (13_Ntfy.cpp)
+	}
+	// Method or unit changed: the page shows other values now — let the browser reload it.
+	if (Params->IrriMode != oldMode || Params->TempUnit != oldUnit) ws.text(clientId, "{\"type\":\"reload\"}");
 }

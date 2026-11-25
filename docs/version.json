@@ -1,5 +1,5 @@
 {
-  "version": "1.10.3",
+  "version": "1.10.4",
   "bin": "firmware/raingauge.bin",
-  "notes": "Networks-in-range list when adding a WiFi network; built-in networks of a private build kept in the list"
+  "notes": "1.10.4 - Celsius / Fahrenheit setting, NTFY alerts for high / low outside temperature, help on the NTFY page"
 }

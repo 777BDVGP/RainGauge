@@ -143,10 +143,10 @@ void MaintainTempRecordsReset(){
 	SaveGenReport F("Temperature records reset");
 }
 
-// Today's min/max for HOME: "12.3 / 26.0 °C"
+// Today's min/max for HOME: "12.3 / 26.0 °C" (or °F)
 String TempTodayText(const MinMax& m){
 	if (isnan(m.lo)) return "--";
-	return String(m.lo, 1) + " / " + String(m.hi, 1) + " °C";
+	return TempNum(m.lo) + " / " + TempNum(m.hi) + " " + TempUnitSym();
 }
 
 // =============================================================================
@@ -233,7 +233,7 @@ void appendTempHistoryTables(){
 		String row = "<tr><td>" + String(names[r]) + "</td>";
 		for (int k = 0; k < 2; k++){
 			const TempRecord* x = recs[r][k];
-			cell(row, isnan(x->value) ? String("") : String(x->value, 1) + " °C<br><span style='font-size:10px;color:#64748b'>" + x->when + "</span>");
+			cell(row, isnan(x->value) ? String("") : TempNum(x->value) + " " + TempUnitSym() + "<br><span style='font-size:10px;color:#64748b'>" + x->when + "</span>");
 		}
 		row += "</tr>";
 		appendHtmlStr(row.c_str());
@@ -246,10 +246,10 @@ void appendTempHistoryTables(){
 	// ── Last 31 days — one table for outside, one for inside.
 	//    Line format: date,OutMin,OutMax,InMin,InMax  (fields 1-2 / 3-4)
 	int shown = count < N ? count : N;
-	const char* dayTitle[2] = { "Outside Temp per Day (°C)", "Inside Temp per Day (°C)" };
+	String dayTitle[2] = { String("Outside Temp per Day (") + TempUnitSym() + ")", String("Inside Temp per Day (") + TempUnitSym() + ")" };
 	for (int t = 0; t < rows; t++){
 		appendHtmlStr("<div style='padding:6px 8px 0'><b style='font-size:13px;color:#0f172a'>");
-		appendHtmlStr(dayTitle[t]);
+		appendHtmlStr(dayTitle[t].c_str());
 		appendHtmlStr("</b></div><table class='compact grid'><tr class='hd'><th>Date</th><th>Min</th><th>Max</th></tr>");
 		for (int k = 0; k < shown; k++){
 			String s = days[(count - 1 - k) % N];
@@ -262,8 +262,8 @@ void appendTempHistoryTables(){
 				from = c + 1;
 			}
 			String row = "<tr><td>" + f[0].substring(5) + "</td>";
-			cell(row, f[1 + 2 * t]);
-			cell(row, f[2 + 2 * t]);
+			cell(row, TempNumStr(f[1 + 2 * t]));   // stored in °C
+			cell(row, TempNumStr(f[2 + 2 * t]));
 			row += "</tr>";
 			appendHtmlStr(row.c_str());
 		}
@@ -272,14 +272,14 @@ void appendTempHistoryTables(){
 	}
 
 	// ── Monthly (outside)
-	appendHtmlStr("<div style='padding:6px 8px 0'><b style='font-size:13px;color:#0f172a'>Outside per Month (°C)</b></div>"
-	              "<table class='compact grid'><tr class='hd'><th>Month</th><th>Lowest</th><th>Avg Min</th><th>Avg Max</th><th>Highest</th></tr>");
+	appendHtmlStr((String("<div style='padding:6px 8px 0'><b style='font-size:13px;color:#0f172a'>Outside per Month (") + TempUnitSym() + ")</b></div>").c_str());
+	appendHtmlStr("<table class='compact grid'><tr class='hd'><th>Month</th><th>Lowest</th><th>Avg Min</th><th>Avg Max</th><th>Highest</th></tr>");
 	int mShown = mCount < M ? mCount : M;
 	for (int k = 0; k < mShown; k++){
 		const Month& m = months[(mCount - 1 - k) % M];
 		char row[200];
 		snprintf(row, sizeof(row), "<tr><td>%s</td><td>%.1f</td><td>%.1f</td><td>%.1f</td><td>%.1f</td></tr>",
-		         m.key, m.lo, m.sumLo / m.n, m.sumHi / m.n, m.hi);
+		         m.key, TempDisp(m.lo), TempDisp(m.sumLo / m.n), TempDisp(m.sumHi / m.n), TempDisp(m.hi));
 		appendHtmlStr(row);
 	}
 	if (mShown == 0) appendHtmlStr("<tr><td colspan='5'>(no data yet)</td></tr>");

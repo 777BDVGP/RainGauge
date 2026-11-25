@@ -84,19 +84,33 @@ void MapNtfyPage() {
 				NtfyList[i].Var = new PageElement(&NtfyData->EnableTempHigh, F("High alert enabled"), "", &NtfyStyle, i + ID_NTFY);
 				break;
 			case NTFY_T_HIGH:
-				NtfyList[i].Var = new PageElement(&NtfyData->TempHighC, F("Alert when Outside reaches (°C)"), "", &NtfyStyle, i + ID_NTFY);
-				NtfyList[i].Var->SetRange(-40, 70, 0.5);
+				NtfyList[i].Var = new PageElement(&NtfyHighDisp, F("Alert when Outside reaches (°C)"), "", &NtfyStyle, i + ID_NTFY);
 				break;
 			case NTFY_EN_T_LOW:
 				NtfyList[i].Var = new PageElement(&NtfyData->EnableTempLow, F("Low alert enabled"), "", &NtfyStyle, i + ID_NTFY);
 				break;
 			case NTFY_T_LOW:
-				NtfyList[i].Var = new PageElement(&NtfyData->TempLowC, F("Alert when Outside drops to (°C)"), "", &NtfyStyle, i + ID_NTFY);
-				NtfyList[i].Var->SetRange(-40, 70, 0.5);
+				NtfyList[i].Var = new PageElement(&NtfyLowDisp, F("Alert when Outside drops to (°C)"), "", &NtfyStyle, i + ID_NTFY);
 				break;
 		}
 	}
 	NtfyPageObject = true;
+	RefreshTempUnitLabels();   // limits + labels in the display unit
+}
+
+// -----------------------------------------------------------------------------
+// RefreshTempUnitLabels — NTFY limit rows in the SETTINGS "Temperature Unit":
+// copy TempHighC / TempLowC (°C) into the page copies, set label and range.
+// Called at boot (MapNtfyPage), after a unit change and after NTFY UPDATE.
+// -----------------------------------------------------------------------------
+void RefreshTempUnitLabels(){
+	if (!NtfyList || !NtfyData) return;
+	NtfyHighDisp = roundf(TempDisp(NtfyData->TempHighC) * 10.0f) / 10.0f;
+	NtfyLowDisp  = roundf(TempDisp(NtfyData->TempLowC)  * 10.0f) / 10.0f;
+	NtfyList[NTFY_T_HIGH].Var->SetDescription(String("Alert when Outside reaches (") + TempUnitSym() + ")");
+	NtfyList[NTFY_T_LOW].Var->SetDescription(String("Alert when Outside drops to (") + TempUnitSym() + ")");
+	NtfyList[NTFY_T_HIGH].Var->SetRange(TempDisp(-40), TempDisp(70), 0.5);
+	NtfyList[NTFY_T_LOW].Var->SetRange(TempDisp(-40), TempDisp(70), 0.5);
 }
 
 // =============================================================================
@@ -111,7 +125,12 @@ void handleNtfy(AsyncWebServerRequest *request) {
 	appendMainPageSel(PS_NTFY);
 	appendHtmlStr(webScriptTag);
 	// ── How to set NTFY up on a phone — above the parameter table.
-	appendHtmlStr("<div style='background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:8px 10px;margin:8px 0;font-size:12px;line-height:1.5;color:#334155'>"
+	// Tick box shows / hides the help; the choice is remembered in this browser
+	// (localStorage) — ticked the first time, so a new user sees it at once.
+	appendHtmlStr("<div style='margin:8px 0 0;font-size:13px;text-align:left'><label>"
+	              "<input type='checkbox' id='ntfyhelpcb' checked onchange='ntfyHelp(this.checked,1)'> "
+	              "Show help (how NTFY works)</label></div>"
+	              "<div id='ntfyhelp' style='background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:8px 10px;margin:4px 0 8px;font-size:12px;line-height:1.5;color:#334155'>"
 	              "<b style='color:#0284c7'>Alerts on your phone with NTFY (free, no account needed)</b>"
 	              "<ol style='margin:4px 0 4px 18px;padding:0'>"
 	              "<li>Install the <b>ntfy</b> app on the phone (Google Play / App Store, by Philipp Heckel).</li>"
@@ -124,7 +143,11 @@ void handleNtfy(AsyncWebServerRequest *request) {
 	              "</ol>"
 	              "<b>Alert Level:</b> <i>urgent</i> = long vibration and sound, even in Do Not Disturb (if the app allows it); "
 	              "<i>high</i> = sound and pop-up; <i>default</i> = normal notification; <i>low</i> = no sound; "
-	              "<i>min</i> = silent, only in the list. Several phones can subscribe to the same topic.</div>");
+	              "<i>min</i> = silent, only in the list. Several phones can subscribe to the same topic.</div>"
+	              "<script>function ntfyHelp(on,save){document.getElementById('ntfyhelp').style.display=on?'block':'none';"
+	              "if(save){try{localStorage.setItem('ntfyHelp',on?'1':'0');}catch(e){}}}"
+	              "(function(){var on=true;try{on=localStorage.getItem('ntfyHelp')!=='0';}catch(e){}"
+	              "document.getElementById('ntfyhelpcb').checked=on;ntfyHelp(on,0);})();</script>");
 	appendHtmlBuf(PageBuf, getPageBufLen());
 	appendHtmlStr(webUpateButton);
 	appendNtfyTestButton();
@@ -208,25 +231,25 @@ void CheckTempAlerts(float outside){
 	if (!NtfyData->EnableTempHigh) highOn = false;
 	else if (!highOn && outside >= NtfyData->TempHighC){
 		highOn = true;
-		String m = "HIGH outside temperature: " + String(outside, 1) + " °C (alert at " + String(NtfyData->TempHighC, 1) + " °C)";
+		String m = "HIGH outside temperature: " + TempNum(outside) + " " + TempUnitSym() + " (alert at " + TempNum(NtfyData->TempHighC) + " " + TempUnitSym() + ")";
 		SaveGenReport{m};
 		MessageNTFY(Params->SysName + " - " + m);
 	}
 	else if (highOn && outside <= NtfyData->TempHighC - TEMP_ALERT_HYST_C){
 		highOn = false;
-		SaveGenReport("Outside temperature back below " + String(NtfyData->TempHighC, 1) + " °C (" + String(outside, 1) + " °C)");
+		SaveGenReport("Outside temperature back below " + TempNum(NtfyData->TempHighC) + " " + TempUnitSym() + " (" + TempNum(outside) + " " + TempUnitSym() + ")");
 	}
 
 	if (!NtfyData->EnableTempLow) lowOn = false;
 	else if (!lowOn && outside <= NtfyData->TempLowC){
 		lowOn = true;
-		String m = "LOW outside temperature: " + String(outside, 1) + " °C (alert at " + String(NtfyData->TempLowC, 1) + " °C)";
+		String m = "LOW outside temperature: " + TempNum(outside) + " " + TempUnitSym() + " (alert at " + TempNum(NtfyData->TempLowC) + " " + TempUnitSym() + ")";
 		SaveGenReport{m};
 		MessageNTFY(Params->SysName + " - " + m);
 	}
 	else if (lowOn && outside >= NtfyData->TempLowC + TEMP_ALERT_HYST_C){
 		lowOn = false;
-		SaveGenReport("Outside temperature back above " + String(NtfyData->TempLowC, 1) + " °C (" + String(outside, 1) + " °C)");
+		SaveGenReport("Outside temperature back above " + TempNum(NtfyData->TempLowC) + " " + TempUnitSym() + " (" + TempNum(outside) + " " + TempUnitSym() + ")");
 	}
 }
 
@@ -267,6 +290,10 @@ void UpdateNtfyPageValues(uint32_t clientId, JsonObject *root) {
 			}
 		}
 	}
+	// The limits were typed in the display unit: back to °C (0.1 resolution).
+	NtfyData->TempHighC = roundf(TempFromDisp(NtfyHighDisp) * 10.0f) / 10.0f;
+	NtfyData->TempLowC  = roundf(TempFromDisp(NtfyLowDisp)  * 10.0f) / 10.0f;
+	RefreshTempUnitLabels();
 	WebMessUpdate(clientId, "NTFY Updated!", "color: red", true);
 	NtfyData->WriteData();
 }

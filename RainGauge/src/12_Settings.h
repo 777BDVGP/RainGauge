@@ -40,6 +40,7 @@ public:
 	bool   ShowOtaInfo         = false;        // ABOUT: show the PC-upload (ArduinoOTA) rows — upload works either way
 	bool   ShowInsideTemp      = false;        // HOME / REPORTS / SIMULATION: show the inside (internal) temperature
 	String TimeZone            = TZ_DEFAULT_LABEL; // a TZ_OPTIONS label (02_Time.cpp) — SETTINGS dropdown
+	String TempUnit            = "Celsius";    // "Celsius" / "Fahrenheit" — DISPLAY only, everything is stored in °C (17_Temperature.cpp)
 
 	// ── Scheduled Reboot ──────────────────────────────────────────────────────
 	bool   RebootEnable1       = true;    // Armed/disarmed
@@ -117,7 +118,9 @@ String ControllerName();
 
 	#define SET_SHOW_OTA         24   // ABOUT: show PC-upload (OTA) rows checkbox
 
-	#define PAGE_VAR_SETTINGS    25   // Total number of settings page PageVar entries
+	#define SET_TEMP_UNIT        25   // Temperature unit dropdown (Celsius / Fahrenheit)
+
+	#define PAGE_VAR_SETTINGS    26   // Total number of settings page PageVar entries
 
 // =============================================================================
 // Static Page Build Buffer  (WT_* table content only)

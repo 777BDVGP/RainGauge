@@ -327,8 +327,9 @@ void appendWaterBalanceTable(){
 
 	appendHtmlStr("<div style='padding:10px 8px 0'><b style='font-size:13px;color:#0f172a'>Water Balance (last 14 days)</b>"
 	              "<span style='font-size:11px;color:#64748b'> &mdash; mm; Soil = water used from the root zone</span></div>"
-	              "<table class='compact grid'><tr class='hd'><th>Date</th><th>Min/Max &deg;C</th><th>ET0</th>"
-	              "<th>Rain</th><th>Irr</th><th>Soil</th></tr>");
+	              "<table class='compact grid'><tr class='hd'><th>Date</th><th>Min/Max ");
+	appendHtmlStr(TempUnitSym());
+	appendHtmlStr("</th><th>ET0</th><th>Rain</th><th>Irr</th><th>Soil</th></tr>");
 	int shown = count < N ? count : N;
 	for (int k = 0; k < shown; k++){
 		// date,Tmin,Tmax,ET0,ETc,Rain,Pe,Irr,Dr,TAW[,avgET0]
@@ -341,7 +342,7 @@ void appendWaterBalanceTable(){
 			if (c < 0) break;
 			from = c + 1;
 		}
-		String temps = f[1].length() ? f[1] + " / " + f[2] : String("avg");
+		String temps = f[1].length() ? TempNumStr(f[1]) + " / " + TempNumStr(f[2]) : String("avg");   // stored in °C
 		String row = "<tr><td>" + f[0].substring(5) + "</td><td>" + temps + "</td><td>" + f[3] +
 		             "</td><td>" + f[5] + "</td><td>" + f[7] + "</td><td>" + f[8] + " / " + f[9] + "</td></tr>";
 		appendHtmlStr(row.c_str());
