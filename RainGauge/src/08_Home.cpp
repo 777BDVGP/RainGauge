@@ -47,13 +47,16 @@ void appendIrrigationHelp(){
 		int   days = use5 > 0 ? (int)(raw / use5 + 0.5f) : 0;
 		s  = "<b style='color:#0284c7'>How the irrigation answer works (Water Balance)</b>"
 		     "<ol style='margin:4px 0 4px 18px;padding:0'>";
-		s += "<li><b>One answer a day.</b> At <b>" + Params->IrriTime + "</b> the gauge decides <i>irrigate today: yes / no</i>. "
-		     + ctl + " asks for it and only waters on <i>yes</i>. The answer is fixed at that time and written in the General Log.</li>";
+		s += "<li><b>The controller asks once a day.</b> " + ctl + " is set to water every day at a fixed time &mdash; <i>Controller Irrigates At</i> on SETTINGS, now <b>" + Params->IrriTime +
+		     "</b>. Before it starts, it asks the rain gauge <i>irrigate today?</i> &mdash; <i>yes</i> = it waters, "
+		     "<i>no</i> = it skips today. The gauge's answer for the day is fixed at " + Params->IrriTime +
+		     " and written in the General Log. <i>Controller Irrigates At</i> on SETTINGS must be the same time as the "
+		     "start time set on " + ctl + ".</li>";
 		s += "<li><b>The soil is a water tank.</b> " + Params->SoilType + " soil with " + String(Params->RootDepthMm) +
 		     " mm deep roots holds <b>" + String(taw, 1) + " mm</b> of water the plants can use "
 		     "(per metre of roots: sand 80, loam 150, clay 200 mm).</li>";
-		s += "<li><b>When it waters.</b> Once <b>" + String(raw, 1) + " mm</b> of that is used (<i>Irrigate when Soil Water Used</i> " +
-		     String(Params->DepletionPct) + "%). The <i>Soil Water</i> row above shows how much is used now; "
+		s += "<li><b>When it waters.</b> Once <b>" + String(raw, 1) + " mm</b> of that is used (" + String(Params->DepletionPct) + "% of " + String(taw, 1) +
+		     " mm &mdash; <i>Irrigate when Soil Water Used</i>). The <i>Soil Water</i> row above shows how much is used now; "
 		     "0 mm = tank full.</li>";
 		appendHtmlStr(s.c_str());
 

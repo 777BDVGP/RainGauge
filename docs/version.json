@@ -1,5 +1,5 @@
 {
-  "version": "1.10.5",
+  "version": "1.10.6",
   "bin": "firmware/raingauge.bin",
-  "notes": "HOME: Show help (how the irrigation answer works) - Water Balance explained with your own settings"
+  "notes": "HOME irrigation help made clearer: the controller's daily time comes from SETTINGS, 'x% of y mm' shown"
 }
