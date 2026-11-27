@@ -119,6 +119,7 @@ void   appendFwUpdateBlock();
 // ─── 08_Home.cpp ──────────────────────────────────────────────────────────────
 void   handleRoot(AsyncWebServerRequest *request);
 void   appendMainPageSel(int Index);
+void   appendIrrigationHelp();
 void   WT_HomePage();
 void   MapHomePage();
 void   UpdateHomeBeam();

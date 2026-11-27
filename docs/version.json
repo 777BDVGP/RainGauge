@@ -1,5 +1,5 @@
 {
-  "version": "1.10.4",
+  "version": "1.10.5",
   "bin": "firmware/raingauge.bin",
-  "notes": "1.10.4 - Celsius / Fahrenheit setting, NTFY alerts for high / low outside temperature, help on the NTFY page"
+  "notes": "HOME: Show help (how the irrigation answer works) - Water Balance explained with your own settings"
 }

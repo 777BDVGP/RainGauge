@@ -19,9 +19,74 @@ void handleRoot(AsyncWebServerRequest *request){
 	appendMainPageSel(PS_HOME);
 	appendHtmlStr(webScriptTag);
 	appendHtmlBuf(PageBuf, getPageBufLen());
+	if (!IrrigationOff() && Params->IrriMode == IRRI_MODE_WB) appendIrrigationHelp();   // Water Balance only
 	appendHtmlStr(webHTMLEnd);
 
 	sendHtmlPage(request);
+}
+
+// -----------------------------------------------------------------------------
+// appendIrrigationHelp
+// "Show help (how the irrigation answer works)" tick box + explanation — only
+// in Water Balance mode.  Sent after the table, then moved by the script into
+// a full-width row right below "Evaporation Yesterday (ET0)".  Same look as the NTFY help box; the numbers are this
+// gauge's own SETTINGS.  Unticked by default (HOME is the everyday page); the
+// choice is remembered in this browser (localStorage).
+// -----------------------------------------------------------------------------
+void appendIrrigationHelp(){
+	String ctl = ControllerName();
+	appendHtmlStr("<div id='irrihelpbox'><div style='margin:2px 0 0;font-size:13px;text-align:left'><label>"
+	              "<input type='checkbox' id='irrihelpcb' onchange='irriHelp(this.checked,1)'> "
+	              "Show help (how the irrigation answer works)</label></div>"
+	              "<div id='irrihelp' style='display:none;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:8px 10px;margin:4px 0 8px;font-size:12px;line-height:1.5;color:#334155'>");
+
+	String s;
+	{
+		float taw = WB_TAW(), raw = WB_RAW();
+		float use5 = Params->CropKc * 5.0f;                  // a typical summer day: ET0 5 mm
+		int   days = use5 > 0 ? (int)(raw / use5 + 0.5f) : 0;
+		s  = "<b style='color:#0284c7'>How the irrigation answer works (Water Balance)</b>"
+		     "<ol style='margin:4px 0 4px 18px;padding:0'>";
+		s += "<li><b>One answer a day.</b> At <b>" + Params->IrriTime + "</b> the gauge decides <i>irrigate today: yes / no</i>. "
+		     + ctl + " asks for it and only waters on <i>yes</i>. The answer is fixed at that time and written in the General Log.</li>";
+		s += "<li><b>The soil is a water tank.</b> " + Params->SoilType + " soil with " + String(Params->RootDepthMm) +
+		     " mm deep roots holds <b>" + String(taw, 1) + " mm</b> of water the plants can use "
+		     "(per metre of roots: sand 80, loam 150, clay 200 mm).</li>";
+		s += "<li><b>When it waters.</b> Once <b>" + String(raw, 1) + " mm</b> of that is used (<i>Irrigate when Soil Water Used</i> " +
+		     String(Params->DepletionPct) + "%). The <i>Soil Water</i> row above shows how much is used now; "
+		     "0 mm = tank full.</li>";
+		appendHtmlStr(s.c_str());
+
+		s  = "<li><b>The garden drinks every day.</b> At midnight the gauge works out the day's evaporation (ET0) from the "
+		     "lowest and highest <b>outside temperature</b> and the sun's strength for the date and Latitude (Hargreaves method). "
+		     "Hot days with cool nights = more. ET0 &times; Garden Factor Kc " + String(Params->CropKc, 2) +
+		     " = what the garden used. No temperature readings that day = the monthly average is used.</li>";
+		s += "<li><b>Rain fills the tank.</b> A day's rain of at least " + String(Params->MinEffRainMm, 1) +
+		     " mm counts; less only wets the leaves and evaporates. The tank can't overflow: a big storm only fills it to full.</li>";
+		s += "<li><b>Rain counts at once, not only at midnight.</b> Midnight only works out the evaporation (it needs the whole "
+		     "day's min / max). Rain is taken off the moment it falls: 20 mm at 05:00 already makes the " + Params->IrriTime +
+		     " answer <i>Skip</i> (&quot;rain today&quot; in the text). Rain after " + Params->IrriTime +
+		     " can't change today's answer any more (" + ctl + " has already watered or skipped), but it fills the tank "
+		     "at midnight and can make tomorrow a <i>Skip</i>.</li>";
+		s += "<li><b>Irrigation fills it too.</b> On a <i>yes</i> day the gauge assumes " + ctl + " added <b>" +
+		     String(Params->IrriDepthMm, 1) + " mm</b> (<i>One Irrigation Adds</i> on SETTINGS &mdash; measure it with the cup test).</li>";
+		s += "</ol>";
+		if (days > 0)
+			s += "<b>Example:</b> on a hot day (ET0 5 mm) the garden uses " + String(use5, 1) + " mm, so from a full tank "
+			     "the first watering comes after about <b>" + String(days) + " dry days</b>.<br>";
+		s += "<b>To water more often:</b> lower <i>Irrigate when Soil Water Used (%)</i>, a shallower Root Depth or Sand soil. "
+		     "<b>Less often:</b> the opposite, or a lower Garden Factor Kc. All on SETTINGS &rarr; Irrigation. "
+		     "Day by day figures: REPORTS &rarr; Water Balance.";
+	}
+	s += "</div></div>"
+	     "<script>function irriHelp(on,save){document.getElementById('irrihelp').style.display=on?'block':'none';"
+	     "if(save){try{localStorage.setItem('irriHelp',on?'1':'0');}catch(e){}}}"
+	     "(function(){var on=false;try{on=localStorage.getItem('irriHelp')==='1';}catch(e){}"
+	     "document.getElementById('irrihelpcb').checked=on;irriHelp(on,0);"
+	     "var b=document.getElementById('irrihelpbox'),l=document.getElementById('L" + String(HOME_ET0 + ID_HOME) + "'),"
+	     "r=l?l.closest('tr'):null;if(r){var t=document.createElement('tr'),c=t.insertCell(0);c.colSpan=2;"
+	     "c.style.cssText='text-align:left;white-space:normal;padding-right:6px';c.appendChild(b);r.after(t);}})();</script>";
+	appendHtmlStr(s.c_str());
 }
 
 // -----------------------------------------------------------------------------

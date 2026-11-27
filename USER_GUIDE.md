@@ -39,7 +39,7 @@ The menu at the top: **HOME**, **REPORTS**, **SETTINGS**, **NTFY**, **FILES**,
 | Rainfall | **Rain Today**, **Rain This Month**, **Last Tip**, **Tips Since Boot**, **Rain per Tip** |
 | Bucket Position (IR beam) | **OPEN** (green) / **BROKEN** (red) — changes on every tip |
 | Temperature | **Outside** now, **Outside Today Min / Max** (inside temperature too, if switched on) |
-| Irrigation | **Irrigate Today?** with the reason, **Soil Water**, **Evaporation Yesterday (ET0)** — hidden with *No Irrigation* |
+| Irrigation | **Irrigate Today?** with the reason, **Soil Water**, **Evaporation Yesterday (ET0)** — hidden with *No Irrigation*. With *Water Balance*, tick **Show help (how the irrigation answer works)** below it for an explanation with your own settings |
 
 The values update by themselves while the page is open.
 
