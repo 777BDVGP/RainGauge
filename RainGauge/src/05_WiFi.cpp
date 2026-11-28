@@ -83,6 +83,48 @@ static void dropConnection(){
 	delay(300);
 }
 
+// ── Fast rejoin (1.12.0) ─────────────────────────────────────────────────────
+// After every join the network name, access point (BSSID) and channel are kept
+// in RTC memory, which survives a restart but not a power cut.  On a restart
+// (watchdog, low memory, gateway lost, nightly reboot, update) SetupWiFi()
+// first joins exactly that AP on that channel — no scan, ~1-2 s — and only
+// falls back to the full search (scan, strongest first) if that fails within
+// WIFI_FAST_MS.  After a power-on the full search runs, so the strongest AP is
+// picked again.  The password is never kept here: it comes from /WiFiConfig.json.
+#define WIFI_FAST_MAGIC  0x52474657UL   // "RGFW"
+#define WIFI_FAST_MS     8000UL
+struct FastNet { uint32_t magic; char ssid[33]; uint8_t bssid[6]; uint8_t channel; uint32_t check; };
+RTC_NOINIT_ATTR static FastNet rtcFast;
+
+static uint32_t fastCheck(const FastNet& f){
+	uint32_t h = 2166136261UL;
+	const uint8_t* p = (const uint8_t*)&f;
+	for (size_t i = 0; i < offsetof(FastNet, check); i++){ h ^= p[i]; h *= 16777619UL; }
+	return h;
+}
+
+static void fastRemember(const String& ssid){
+	memset(&rtcFast, 0, sizeof(rtcFast));
+	rtcFast.magic = WIFI_FAST_MAGIC;
+	strlcpy(rtcFast.ssid, ssid.c_str(), sizeof(rtcFast.ssid));
+	const uint8_t* b = WiFi.BSSID();
+	if (b) memcpy(rtcFast.bssid, b, 6);
+	rtcFast.channel = (uint8_t)WiFi.channel();
+	rtcFast.check   = fastCheck(rtcFast);
+}
+
+static void fastForget(){ rtcFast.magic = 0; }
+
+static bool waitConnectedMs(unsigned long ms){
+	unsigned long t = millis();
+	while (WiFi.status() != WL_CONNECTED) {
+		if (millis() - t > ms) return false;
+		delay(50);
+		HeartbeatToggle();
+	}
+	return true;
+}
+
 static bool joinWith(const WifiCfg& c){
 	DEBUG_PRINTF("WiFi: joining %s (%s)\n", c.ssid.c_str(), c.dhcp ? "DHCP" : c.ip.toString().c_str());
 	if (c.dhcp) WiFi.config(IPAddress(0,0,0,0), IPAddress(0,0,0,0), IPAddress(0,0,0,0));   // 0.0.0.0 = DHCP
@@ -94,8 +136,9 @@ static bool joinWith(const WifiCfg& c){
 	WiFi.setSortMethod(WIFI_CONNECT_AP_BY_SIGNAL);
 	WiFi.begin(c.ssid.c_str(), c.pass.c_str());
 	if (!waitConnected()) return false;
+	fastRemember(c.ssid);
 	SaveGenReport("WiFi: joined " + c.ssid + " via AP " + WiFi.BSSIDstr() +
-	              " (channel " + String(WiFi.channel()) + ", " + String(WiFi.RSSI()) + " dBm)");
+	              " (channel " + String(WiFi.channel()) + ", " + String(WiFi.RSSI()) + " dBm, full scan)");
 	return true;
 }
 
@@ -481,6 +524,36 @@ static void runSetupPortal(uint32_t timeoutMs, const String& why){
 	}
 }
 
+// Restart (not power-on): join the remembered AP directly — see "Fast rejoin".
+static bool fastRejoin(){
+	esp_reset_reason_t why = esp_reset_reason();
+	if (why == ESP_RST_POWERON || why == ESP_RST_BROWNOUT) { fastForget(); return false; }
+	if (rtcFast.magic != WIFI_FAST_MAGIC || rtcFast.check != fastCheck(rtcFast) || rtcFast.channel == 0) return false;
+
+	WifiCfg nets[WIFI_MAX_NETS];
+	int n = loadNets(nets, WIFI_MAX_NETS);
+	int idx = -1;
+	for (int i = 0; i < n; i++) if (nets[i].ssid == rtcFast.ssid) { idx = i; break; }
+	if (idx < 0 || needsLearning(nets[idx])) { fastForget(); return false; }   // deleted, or gateway still unknown
+	const WifiCfg& c = nets[idx];
+
+	unsigned long t0 = millis();
+	if (c.dhcp) WiFi.config(IPAddress(0,0,0,0), IPAddress(0,0,0,0), IPAddress(0,0,0,0));
+	else        WiFi.config(c.ip, c.gw, c.sn, c.dns);
+	WiFi.setScanMethod(WIFI_FAST_SCAN);
+	WiFi.begin(c.ssid.c_str(), c.pass.c_str(), rtcFast.channel, rtcFast.bssid, true);
+	if (!waitConnectedMs(WIFI_FAST_MS)) {
+		dropConnection();
+		fastForget();
+		SaveGenReport("WiFi: fast rejoin of " + c.ssid + " failed - full scan");
+		return false;
+	}
+	WiFiSource = "saved";
+	SaveGenReport("WiFi: fast rejoin " + c.ssid + " via AP " + WiFi.BSSIDstr() + " (channel " + String(WiFi.channel()) +
+	              ", " + String(WiFi.RSSI()) + " dBm) in " + String((millis() - t0) / 100 / 10.0, 1) + " s");
+	return true;
+}
+
 // ── Public API ────────────────────────────────────────────────────────────────
 
 String WiFiHostName(){
@@ -503,7 +576,8 @@ bool SetupWiFi() {
 			DEBUG_PRINTF("WiFi: round %d failed - retry in %lu s\n", round, WIFI_ROUND_GAP_MS / 1000);
 			delay(WIFI_ROUND_GAP_MS);
 		}
-		bool joined = joinSaved();
+		bool joined = (round == 0) && fastRejoin();   // restart: remembered AP, no scan
+		if (!joined) joined = joinSaved();
 		if (!joined) joined = scanAndJoinKnown();
 
 		if (joined) {

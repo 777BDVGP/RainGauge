@@ -238,10 +238,12 @@ void appendTempHistoryTables(){
 		row += "</tr>";
 		appendHtmlStr(row.c_str());
 	}
+	if (NavAuthed) {   // outside visitors without a login: no reset button (23_Access.cpp)
 	appendHtmlStr("</table><div class='btns'><a class='btn btn-rd' href='/resettemprecords' "
 	              "onclick=\"return confirm('Reset the TEMPERATURE records (lowest / highest above)?\\n\\nOnly these values start again from now.\\nRainfall and the daily temperature history are NOT touched.')\">RESET TEMPERATURE RECORDS</a></div>"
 	              "<p style='text-align:center;color:#64748b;font-size:11px;margin:0 8px 6px'>"
 	              "Only clears the lowest / highest temperatures above. Rainfall is never touched.</p>");
+	} else appendHtmlStr("</table>");
 
 	// ── Last 31 days — one table for outside, one for inside.
 	//    Line format: date,OutMin,OutMax,InMin,InMax  (fields 1-2 / 3-4)

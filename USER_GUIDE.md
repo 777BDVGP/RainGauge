@@ -40,6 +40,10 @@ each open a second row of tabs:
 CALIBRATION and SIMULATION are opened from SETTINGS. Where this guide says
 e.g. "SETTINGS" or "NTFY page", find it under OTHER.
 
+Visitors from **outside** your home network (e.g. through a port forward on the
+router) see only **HOME** | **REPORTS**, plus **LOGIN** when a password is set —
+see section 15.
+
 ## 3. HOME — live values
 
 | Section | Shows |
@@ -180,6 +184,12 @@ be reached for about 5 minutes, the **RainGauge-Setup** hotspot opens for
 5 minutes so you can add one from a phone, then the gauge restarts and tries
 again.
 
+**Fast rejoin:** after a restart (not after a power cut) the gauge first joins
+the access point it used last, directly and without scanning — usually in well
+under a second ("WiFi: fast rejoin …" in the General Log). Only if that fails
+within 8 seconds does it do the full search above. After a power cut it always
+does the full search, so it picks the strongest access point again.
+
 ## 10. Simulation
 
 Try every page without the PCB or without rain: SETTINGS → **SIMULATION**,
@@ -223,6 +233,10 @@ shown.
   at **Controller Irrigates At**.
 - Tests its infrared beam every few minutes.
 - Reconnects to WiFi after a dropout; restarts once a day (if enabled).
+- Pings the router every 15 seconds and restarts if it gets no answer for
+  1 minute (the gauge has dropped off the network).
+- Restarts if it has to refuse pages ("Low memory — retrying") for 30 seconds
+  in a row. Every restart is written to the General Log with the reason.
 - Takes the time from the internet.
 
 ## 14. Limits
@@ -231,4 +245,37 @@ shown.
 |---|---|
 | Saved WiFi networks | 8 (2.4 GHz only) |
 | Time zone | 26 zones to choose from (SETTINGS); not every country is in the list |
-| Web pages / updates over WiFi | no password — keep the gauge on a WiFi you trust |
+| Web pages / updates over WiFi | no password on your home network — keep the gauge on a WiFi you trust. From outside: password, plain http (section 15) |
+
+## 15. Remote access (from outside your home)
+
+If the router forwards a port to the gauge, anybody on the internet can open it.
+The gauge tells visitors apart by their address:
+
+| Visitor | Menu | Can change things? |
+|---|---|---|
+| Your home network | HOME \| REPORTS \| OTHER — no password | yes |
+| Outside, not logged in | HOME \| REPORTS \| **LOGIN** | no — HOME and REPORTS only, they still update live |
+| Outside, logged in | HOME \| REPORTS \| OTHER, with **LOGOUT** in the OTHER row | yes |
+
+1. **Set the password** at home: SETTINGS → **REMOTE ACCESS** (at the bottom),
+   6 to 64 characters, **SET PASSWORD**. This block is only shown on your home
+   network — the password can never be changed from outside. **CLEAR** removes it.
+2. **Without a password** (the default) the LOGIN tab is hidden: outside visitors
+   can only ever see HOME and REPORTS.
+3. **From outside:** LOGIN → password → you stay logged in for **1 day** on that
+   browser, or until LOGOUT. A restart of the gauge logs everybody out.
+4. **Wrong passwords:** after 5 in a row the login is locked for 15 minutes.
+   Every outside login and every wrong password is written to the General Log
+   with the visitor's address.
+5. **Check it:** ABOUT → **Your connection** shows "Home network" or "Outside"
+   with the address the gauge sees. Try it once from a phone on mobile data
+   (WiFi off): the menu must show only HOME | REPORTS. If it shows OTHER, your
+   router hides the visitor's address on the port forward — then do not forward
+   a port to the gauge.
+
+The password is stored scrambled (salted hash) in `/Access.json`, which, like
+`/WiFiConfig.json`, cannot be listed or downloaded on FILES. The gauge uses plain
+**http**, not https: the password crosses the internet unencrypted, so use one you
+do not use anywhere else. `/api/irrigate` stays open, so an irrigation controller
+on your network keeps working.

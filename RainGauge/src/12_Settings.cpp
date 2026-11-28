@@ -266,6 +266,7 @@ void handleSettings(AsyncWebServerRequest *request){
 	              "fetch('/startfresh',{method:'POST'}).then(function(){"
 	              "document.body.innerHTML='<h3 style=\"text-align:center;margin-top:40px\">Starting fresh &mdash; the gauge is restarting&hellip;</h3>';"
 	              "setTimeout(function(){location.href='/';},15000);});}</script>");
+	if (!NavOutside) appendAccessSection();   // remote access password — home network only (23_Access.cpp)
 	appendHtmlStr(webHTMLEnd);
 	sendHtmlPage(request);
 }

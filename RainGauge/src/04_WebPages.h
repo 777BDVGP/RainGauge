@@ -38,6 +38,7 @@ inline const char COLOR_VIOLET[]  = "color:#ff00ff";
 #define FA_MESS_RAIN 14
 #define FA_MESS_TEMP 15
 #define FA_MESS_WB   16
+#define FA_MESS_LOGIN 17
 
 inline int Delmess = FA_MESS_06;
 

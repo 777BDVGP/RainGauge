@@ -45,11 +45,17 @@ bool beginHtmlStream(AsyncWebServerRequest *request)
 			last503Log = millis() | 1;
 			SaveGenReport("503: heap=" + String(freeHeap) + " maxBlk=" + String(maxAlloc));
 		}
+		// Refusal streak for MaintainHeapGuard() (loop): a gap of more than
+		// REFUSE_GAP_MS between refusals starts a new streak.
+		uint32_t now = millis();
+		if (Refuse503FirstMs == 0 || now - Refuse503LastMs > REFUSE_GAP_MS) Refuse503FirstMs = now | 1;
+		Refuse503LastMs = now;
 		request->send(503, "text/html",
 		    "<html><head><meta http-equiv='refresh' content='1'></head>"
 		    "<body>Low memory &mdash; retrying&hellip;</body></html>");
 		return false;
 	}
+	Refuse503FirstMs = 0;   // a page was served — streak over
 	return true;
 }
 
@@ -135,9 +141,14 @@ void webSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEve
 
 	switch (type){
 		case WS_EVT_DISCONNECT:
+			AccessWsDisconnect(client->id());
 		break;
 
 		case WS_EVT_CONNECT: {
+			// arg = the handshake request (carries the login cookie): may this
+			// client send commands (UPDATE, REBOOT …)?  Outside visitors without
+			// a login only receive the live values.
+			AccessWsConnect(client->id(), (AsyncWebServerRequest*)arg);
 			String ActTime = DateTime;
 			webParamUpdate(Params->SysName, "H01", "");
 			webParamUpdate(ActTime,         "H02", "");
@@ -147,7 +158,8 @@ void webSocketEvent(AsyncWebSocket *server, AsyncWebSocketClient *client, AwsEve
 		case WS_EVT_DATA: {
 			AwsFrameInfo *info = (AwsFrameInfo*)arg;
 			if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT){
-				queueWsCommand(client->id(), data, len);   // applied by loop()
+				if (AccessWsAllowed(client->id()))         // 23_Access.cpp
+					queueWsCommand(client->id(), data, len);   // applied by loop()
 			}
 		}
 		break;
@@ -261,6 +273,7 @@ void append_FileAction(int ReqMess)
 		case FA_MESS_RAIN: Message = "Rain Report";                      LColor = COLOR_BLUE;    break;
 		case FA_MESS_TEMP: Message = "Temperature Report";               LColor = COLOR_BLUE;    break;
 		case FA_MESS_WB:   Message = "Water Balance Report";             LColor = COLOR_BLUE;    break;
+		case FA_MESS_LOGIN: Message = "Remote Login";                    LColor = COLOR_BLUE;    break;
 		case FA_MESS_RED: Message = SpesialStr.c_str();                  LColor = COLOR_RED;     break;
 		case FA_MESS_GRN: Message = SpesialStr.c_str();                  LColor = COLOR_GREEN;   break;
 		default:          Message = "";                                  LColor = COLOR_BLUE;    break;

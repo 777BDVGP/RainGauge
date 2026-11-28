@@ -1,7 +1,7 @@
 #pragma once
 
 // Firmware version — shown on the ABOUT page.  Bump it with every change you upload.
-#define FW_VERSION "1.11.0"
+#define FW_VERSION "1.12.0"
 
 // =============================================================================
 // 01_Main.h — Global Definitions, System Libraries & Core State Variables
@@ -53,16 +53,20 @@
 // ─── Heap Monitor Thresholds ─────────────────────────────────────────────────
 	#define MIN_FREE_HEAP    10000
 	#define HEAP_FREE_MIN    18000
-	#define HEAP_MAXBLK_MIN  10000
+	#define REFUSE_REBOOT_MS 30000UL   // reboot when pages are refused (503 "Low memory") for 30 s in a row (1.12.0)
+	#define REFUSE_GAP_MS     5000UL   // no refusal for 5 s = the streak is over
+	inline volatile uint32_t Refuse503FirstMs = 0;   // start of the current refusal streak (0 = none) — set in async_tcp
+	inline volatile uint32_t Refuse503LastMs  = 0;   // last refusal
+	#define HEAP_MAXBLK_MIN   7000   // a page needs ~6 KB (send buffer; the page itself is in PSRAM) — was 10000 until 1.12.0
 
 // ─── Gateway Reachability Guard (MaintainGatewayWatch, 01_Main.cpp) ─────────
 // WiFi.status() alone can keep reporting WL_CONNECTED while the device has
 // silently dropped off the network (no ping, no ARP reply). Pinging the
 // router proves the link actually carries traffic; reboot if it goes silent.
 // The ping ALSO acts as a keepalive so the AP/router doesn't age this client out.
-	#define GW_PING_INTERVAL_MS   30000UL    // One ping to the gateway every 30 s
+	#define GW_PING_INTERVAL_MS   15000UL    // One ping to the gateway every 15 s
 	#define GW_PING_TIMEOUT_MS     2000UL    // Per-ping reply timeout
-	#define GW_UNREACHABLE_MS    300000UL    // Reboot after 5 min with no reply
+	#define GW_UNREACHABLE_MS     60000UL    // Reboot after 1 min with no reply (was 5 min until 1.12.0)
 
 // ─── Watchdog Variables ───────────────────────────────────────────────────────
 	inline Ticker secondTick;

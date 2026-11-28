@@ -43,6 +43,13 @@ is a web page on your own WiFi; no cloud, no app needed.
     outside temperature; IR sensor test with live beam status.
   - **ABOUT** — network, firmware **update from GitHub** (CHECK / INSTALL) or from an
     uploaded `.bin`.
+- **Remote access** — visitors from outside your network (port forward) see only
+  HOME and REPORTS; with a password (set on SETTINGS, only from home) they can
+  LOG IN for one day and use everything. See the
+  [user guide](USER_GUIDE.md#15-remote-access-from-outside-your-home).
+- **Self-healing** — restarts when the router stops answering for 1 minute or pages
+  are refused for low memory for 30 seconds; after a restart it rejoins the last
+  WiFi access point directly, without scanning.
 - **`/api/irrigate`** — JSON answer any irrigation controller can poll.
 
 ## 1. Printing the parts

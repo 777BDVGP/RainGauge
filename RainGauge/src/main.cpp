@@ -119,7 +119,7 @@ void loop(){
 	if (now - t10 >= 10){
 		t10 = now;
 		LEDToggle();                   // LED heartbeat, WiFi-loss reboot
-		MaintainGatewayWatch();        // KEEPALIVE ping + reboot if the router stops answering for 5 min — do NOT remove
+		MaintainGatewayWatch();        // KEEPALIVE ping + reboot if the router stops answering for 1 min — do NOT remove
 		MaintainTimers();              // expire elapsed software timers
 		PinDebounce();                 // debounce the IR pickup input
 		MaintainIrSelfTest();          // IR LED off/on check every N min -> NTFY on fault
@@ -127,6 +127,7 @@ void loop(){
 		MaintainWsCommands();          // apply WebSocket commands queued by async_tcp
 		MaintainTempRecordsReset();    // REPORTS "RESET RECORDS" (flag from async_tcp)
 		MaintainStartFresh();          // SETTINGS "START FRESH" — wipe data files + restart (flag from async_tcp)
+		MaintainAccess();              // remote access password save + login log lines (23_Access.cpp)
 		MaintainWifiNets();            // SETTINGS "WiFi Networks" add / delete (queued by async_tcp)
 		MaintainFwUpdate();            // ABOUT firmware CHECK / INSTALL from GitHub (blocking, by hand) + restart after upload
 		MaintainRain();                // count tips, calibration, log rain per 30 s window

@@ -208,43 +208,52 @@ void MaintainWebPageValues(){
 // Registers all HTTP GET/POST route handlers with the AsyncWebServer.
 // -----------------------------------------------------------------------------
 void AddRoutes(){
+	// Remote access (23_Access.cpp): AccessOpen = everybody (sets the menu for
+	// outside visitors), AccessGuard = home network or logged in, else
+	// redirected to LOGIN / 403.  /api/irrigate stays open for the controller.
+	AccessLoad();
 
-	// ── Main Pages (tab strip order) ──────────────────────────────────────────
-	server.on("/",         handleRoot);      // Home page        (08_Home.cpp)
-	server.on("/settings", handleSettings);  // System settings  (12_Settings.cpp)
-	server.on("/calibrate",handleCalibrate); // Rain calibration (16_Rain.cpp) — via SETTINGS
+	// ── Open to everybody ─────────────────────────────────────────────────────
+	server.on("/",             AccessOpen(handleRoot));           // Home page          (08_Home.cpp)
+	server.on("/rain",         AccessOpen(handleRainReport));     // REPORTS > RAIN          (10_Reports.cpp)
+	server.on("/temperature",  AccessOpen(handleTempReport));     // REPORTS > TEMPERATURE   (10_Reports.cpp)
+	server.on("/waterbalance", AccessOpen(handleWaterBalReport)); // REPORTS > WATER BALANCE (10_Reports.cpp)
+	server.on("/reports",      handleReports);                    // old link -> /rain
+	server.on("/wss.js",       handleWssJs);                      // Cached client script (04_WebPages.cpp)
+	server.on("/api/irrigate", handleApiIrrigate);                // JSON answer for the irrigation controller (19_Irrigation.cpp)
+	server.on("/login",        handleLogin);                      // LOGIN (outside visitors)  (23_Access.cpp)
+	server.on("/logout",       handleLogout);
+	server.on("/setpass", HTTP_POST, handleSetPass);              // SETTINGS password — home network only
+
+	// ── Home network or logged in ─────────────────────────────────────────────
+	server.on("/settings", AccessGuard(handleSettings));  // System settings  (12_Settings.cpp)
+	server.on("/calibrate",AccessGuard(handleCalibrate)); // Rain calibration (16_Rain.cpp) — via SETTINGS
 	// Leaving the CALIBRATION page stops a running calibration (sendBeacon on pagehide).
 	// Only raises a flag — MaintainRain() does the stop in loop().
-	server.on("/calstop", HTTP_POST, [](AsyncWebServerRequest *request){ CalStopRequested = true; request->send(204); });
-	server.on("/simulate", handleSimulate);  // Simulation mode  (18_Simulation.cpp) — via SETTINGS
-	server.on("/rain",         handleRainReport);     // REPORTS > RAIN          (10_Reports.cpp)
-	server.on("/temperature",  handleTempReport);     // REPORTS > TEMPERATURE   (10_Reports.cpp)
-	server.on("/waterbalance", handleWaterBalReport); // REPORTS > WATER BALANCE (10_Reports.cpp)
-	server.on("/reports",      handleReports);        // old link -> /rain
-	server.on("/ntfy",     handleNtfy);      // NTFY push        (13_Ntfy.cpp)
-	server.on("/testntfy", handleTestNtfy);  // Send test NTFY   (13_Ntfy.cpp)
-	server.on("/irtest", HTTP_POST, handleIrTestNow); // NTFY page "TEST IR SENSOR NOW" (13_Ntfy.cpp)
-	server.on("/api/sysinfo", handleApiSysInfo); // Heap + tasks, plain text, no 503 guard (15_About.cpp)
-	server.on("/about",    handleAbout);     // About / OTA      (15_About.cpp)
-	server.on("/wss.js",   handleWssJs);     // Cached client script (04_WebPages.cpp)
-	server.on("/api/irrigate", handleApiIrrigate); // JSON answer for the irrigation controller (19_Irrigation.cpp)
-	server.on("/resettemprecords", handleResetTempRecords); // TEMPERATURE page button (21_TempHistory.cpp)
-	server.on("/startfresh", HTTP_POST, handleStartFresh);  // SETTINGS "START FRESH" (12_Settings.cpp)
-	server.on("/wifinet/add",    HTTP_POST, handleWifiNetAdd);    // SETTINGS "WiFi Networks" (05_WiFi.cpp)
-	server.on("/wifinet/delete", HTTP_POST, handleWifiNetDelete);
-	server.on("/wifiscan",       HTTP_GET,  handleWifiScan);      // SETTINGS "Networks in range" (05_WiFi.cpp)
-	server.on("/fwcheck",    HTTP_POST, handleFwCheck);          // ABOUT "CHECK FOR UPDATE" (22_Update.cpp)
-	server.on("/fwinstall",  HTTP_POST, handleFwInstall);        // ABOUT "INSTALL FROM GITHUB"
-	server.on("/update",     HTTP_POST, handleFwUploadDone, handleFwUploadData);  // ABOUT ".bin upload"
+	server.on("/calstop", HTTP_POST, AccessGuard([](AsyncWebServerRequest *request){ CalStopRequested = true; request->send(204); }));
+	server.on("/simulate", AccessGuard(handleSimulate));  // Simulation mode  (18_Simulation.cpp) — via SETTINGS
+	server.on("/ntfy",     AccessGuard(handleNtfy));      // NTFY push        (13_Ntfy.cpp)
+	server.on("/testntfy", AccessGuard(handleTestNtfy));  // Send test NTFY   (13_Ntfy.cpp)
+	server.on("/irtest", HTTP_POST, AccessGuard(handleIrTestNow)); // NTFY page "TEST IR SENSOR NOW" (13_Ntfy.cpp)
+	server.on("/api/sysinfo", AccessGuard(handleApiSysInfo)); // Heap + tasks, plain text, no 503 guard (15_About.cpp)
+	server.on("/about",    AccessGuard(handleAbout));     // About / OTA      (15_About.cpp)
+	server.on("/resettemprecords", AccessGuard(handleResetTempRecords)); // TEMPERATURE page button (21_TempHistory.cpp)
+	server.on("/startfresh", HTTP_POST, AccessGuard(handleStartFresh));  // SETTINGS "START FRESH" (12_Settings.cpp)
+	server.on("/wifinet/add",    HTTP_POST, AccessGuard(handleWifiNetAdd));    // SETTINGS "WiFi Networks" (05_WiFi.cpp)
+	server.on("/wifinet/delete", HTTP_POST, AccessGuard(handleWifiNetDelete));
+	server.on("/wifiscan",       HTTP_GET,  AccessGuard(handleWifiScan));      // SETTINGS "Networks in range" (05_WiFi.cpp)
+	server.on("/fwcheck",    HTTP_POST, AccessGuard(handleFwCheck));          // ABOUT "CHECK FOR UPDATE" (22_Update.cpp)
+	server.on("/fwinstall",  HTTP_POST, AccessGuard(handleFwInstall));        // ABOUT "INSTALL FROM GITHUB"
+	server.on("/update",     HTTP_POST, AccessGuard(handleFwUploadDone), AccessGuardUpload(handleFwUploadData));  // ABOUT ".bin upload"
 
 	// ── File Manager ──────────────────────────────────────────────────────────
-	server.on("/files/view",   handleFileView);
-	server.on("/files/delete", handleFileDeleteJson);
-	server.on("/api/files",    handleApiFiles);
-	server.on("/files",        FilesPage);
-	server.on("/download",     File_Download);
+	server.on("/files/view",   AccessGuard(handleFileView));
+	server.on("/files/delete", AccessGuard(handleFileDeleteJson));
+	server.on("/api/files",    AccessGuard(handleApiFiles));
+	server.on("/files",        AccessGuard(FilesPage));
+	server.on("/download",     AccessGuard(File_Download));
 	server.on("/fupload", HTTP_POST,
-		[](AsyncWebServerRequest *request){ request->redirect("/files"); },
-		handleFileUpload
+		AccessGuard([](AsyncWebServerRequest *request){ request->redirect("/files"); }),
+		AccessGuardUpload(handleFileUpload)
 	);
 }

@@ -20,4 +20,4 @@
 	inline String StrWiFiConfig     = F("/WiFiConfig.json");    // WiFi network + password + IP (05_WiFi.cpp) — never shown on FILES
 
 	// The WiFi password file is never listed, viewed or downloaded.
-	inline bool IsProtectedFile(String path){ if (!path.startsWith("/")) path = "/" + path; return path == StrWiFiConfig; }
+	inline bool IsProtectedFile(String path){ if (!path.startsWith("/")) path = "/" + path; return path == StrWiFiConfig || path == "/Access.json"; }

@@ -1,5 +1,5 @@
 {
-  "version": "1.11.0",
+  "version": "1.12.0",
   "bin": "firmware/raingauge.bin",
-  "notes": "New menu: HOME | REPORTS (RAIN, TEMPERATURE, WATER BALANCE) | OTHER (SETTINGS, FILES, NTFY, ABOUT)"
+  "notes": "Remote access password (outside visitors see HOME and REPORTS only), fast WiFi rejoin after a restart, quicker recovery from low memory / lost network"
 }

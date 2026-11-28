@@ -114,7 +114,10 @@ void appendMainPageSel(int Index){
 	appendHtmlStr("<div class='nav'>");
 	navTab(Index == PS_HOME, "/", "HOME");
 	appendHtmlStr(reports ? "<a class='act' href='/rain'>REPORTS</a>"  : "<a href='/rain'>REPORTS</a>");
-	appendHtmlStr(other   ? "<a class='act' href='/settings'>OTHER</a>" : "<a href='/settings'>OTHER</a>");
+	if (NavAuthed)                    // home network or logged in (23_Access.cpp)
+		appendHtmlStr(other ? "<a class='act' href='/settings'>OTHER</a>" : "<a href='/settings'>OTHER</a>");
+	else if (AccessPasswordSet())     // outside, not logged in: LOGIN (hidden without a password)
+		appendHtmlStr(Index == PS_LOGIN ? "<a class='act'>LOGIN</a>" : "<a href='/login'>LOGIN</a>");
 	appendHtmlStr("</div>");
 	if (reports){
 		appendHtmlStr("<div class='nav sub'>");
@@ -130,6 +133,7 @@ void appendMainPageSel(int Index){
 	navTab(Index == PS_FILES,    "/files",    "FILES");
 	navTab(Index == PS_NTFY,     "/ntfy",     "NTFY");
 	navTab(Index == PS_ABOUT,    "/about",    "ABOUT");
+	if (NavOutside) appendHtmlStr("<a href='/logout'>LOGOUT</a>");   // logged in from outside
 	appendHtmlStr("</div>");
 }
 

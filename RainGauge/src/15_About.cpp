@@ -286,6 +286,7 @@ void handleAbout(AsyncWebServerRequest *request) {
     appendMainPageSel(PS_ABOUT);
     appendHtmlStr(webScriptTag);
     appendHtmlBuf(PageBuf, getPageBufLen());
+    appendAccessInfo(request);  // "Your connection" — home network / outside (23_Access.cpp)
     webRebootButton();
     // (WiFi networks are managed on the SETTINGS page — 05_WiFi.cpp)
     appendFwUpdateBlock();      // 22_Update.cpp

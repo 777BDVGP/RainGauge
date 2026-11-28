@@ -129,7 +129,25 @@ void   MaintainHomePage();
 void   webRebootButton();
 
 // ─── 10_Reports.cpp ───────────────────────────────────────────────────────────
-void   handleReports(AsyncWebServerRequest *request);        // old link -> /rain
+void   handleReports(AsyncWebServerRequest *request);
+
+// ─── 23_Access.cpp ────────────────────────────────────────────────────────────
+bool   AccessIsLocal(AsyncWebServerRequest* request);
+bool   AccessAllowed(AsyncWebServerRequest* request);
+bool   AccessPasswordSet();
+ArRequestHandlerFunction AccessGuard(ArRequestHandlerFunction f);
+ArRequestHandlerFunction AccessOpen(ArRequestHandlerFunction f);
+ArUploadHandlerFunction  AccessGuardUpload(ArUploadHandlerFunction f);
+void   AccessWsConnect(uint32_t id, AsyncWebServerRequest* request);
+void   AccessWsDisconnect(uint32_t id);
+bool   AccessWsAllowed(uint32_t id);
+void   AccessLoad();
+void   MaintainAccess();
+void   handleLogin(AsyncWebServerRequest* request);
+void   handleLogout(AsyncWebServerRequest* request);
+void   handleSetPass(AsyncWebServerRequest* request);
+void   appendAccessSection();
+void   appendAccessInfo(AsyncWebServerRequest* request);        // old link -> /rain
 void   handleRainReport(AsyncWebServerRequest *request);
 void   handleTempReport(AsyncWebServerRequest *request);
 void   handleWaterBalReport(AsyncWebServerRequest *request);

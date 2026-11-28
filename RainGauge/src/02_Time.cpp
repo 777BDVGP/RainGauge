@@ -18,6 +18,18 @@
 // -----------------------------------------------------------------------------
 void MaintainHeapGuard() {
 	if (OTAInProgress) return;              // never reboot mid-flash on a transient dip
+
+	// Pages refused ("Low memory - retrying") for REFUSE_REBOOT_MS in a row —
+	// the refused page reloads every second, so the streak only lasts while
+	// somebody keeps getting the 503.  Checked every 10 ms (not on the 15 s timer).
+	uint32_t first = Refuse503FirstMs, last = Refuse503LastMs;
+	if (first && millis() - last <= REFUSE_GAP_MS && last - first >= REFUSE_REBOOT_MS){
+		SaveGenReport("REBOOT - pages refused for 30 s (low memory: heap " + String(ESP.getFreeHeap()) +
+		              ", maxBlk " + String(ESP.getMaxAllocHeap()) + ")");
+		delay(100);
+		ESP.restart();
+	}
+
 	if (!TimerExpired(TIM_CHECK_HEAP_AN_STACK)) return;
 	activateTimer(TIM_CHECK_HEAP_AN_STACK);
 
