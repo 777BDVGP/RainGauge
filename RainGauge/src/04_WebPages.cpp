@@ -494,6 +494,11 @@ void WT_SectionHeader(const char* Header){
 	appendToPageBuf("{sectionHeader: \""); appendToPageBuf(Header); appendToPageBuf("\"},");
 }
 
+// Same row, styled like the page headings (FIRMWARE UPDATE, PROJECT …).
+void WT_SectionTitle(const char* Title){
+	appendToPageBuf("{sectionHeader: \""); appendToPageBuf(Title); appendToPageBuf("\", title: 1},");
+}
+
 void WT_StartLine(){
 	appendToPageBuf("{");
 }

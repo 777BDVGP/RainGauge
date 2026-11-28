@@ -1,16 +1,17 @@
 #pragma once
 
 // =============================================================================
-// 22_Update.h — Firmware update from GitHub or from an uploaded .bin (ABOUT)
+// 22_Update.h — Firmware update from GitHub (ABOUT)
 // =============================================================================
 // ABOUT page, "FIRMWARE UPDATE":
 //
 //   CHECK FOR UPDATE  reads FW_UPDATE_URL "version.json" from GitHub Pages:
 //                     {"version":"1.8.0","bin":"firmware/raingauge.bin","notes":"..."}
 //   INSTALL           downloads that .bin into the spare OTA slot and restarts.
-//   UPLOAD .bin       a file chosen on a PC / phone (POST /update).
+//   (Uploading a .bin from a PC / phone — POST /update — was removed in 1.12.1:
+//   firmware only comes from GitHub, or from a PC with PlatformIO / USB.)
 //
-// Both ways write the NEW firmware into the spare app partition (2 x 1.5 MB,
+// INSTALL writes the NEW firmware into the spare app partition (2 x 1.5 MB,
 // partitions_ota.csv); the gauge only switches to it when the whole image
 // arrived and verified.  A broken download / wrong file leaves the running
 // firmware untouched.  Settings, calibration and the rain history (SPIFFS)

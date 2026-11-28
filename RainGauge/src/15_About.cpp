@@ -192,11 +192,13 @@ static void buildAboutTable() {
 
     resetPageBuf();
     WT_StartPage();
-    WT_StartTable("PARAMETER", "VALUE", "");
+    // No PARAMETER / VALUE header row: each block has a blue heading like
+    // FIRMWARE UPDATE and PROJECT below (WT_SectionTitle).
 
     // PC upload (ArduinoOTA) rows: only with SETTINGS "Show PC Upload (OTA) on
     // ABOUT".  ArduinoOTA itself stays on either way — hiding is cosmetic.
     if (Params->ShowOtaInfo){
+    WT_SectionTitle("PC UPLOAD (OTA)");
     // Row 1 — OTA status (live: JS setOtaStatus() updates value + colour via WebSocket)
     WT_StartLine();
     WT_Column(WT_LABEL, WT_FIRST, WT_LAST, "text", "OTA (Over-The-Air) Updates", "OTA_L1",     "",          nullptr);
@@ -206,7 +208,7 @@ static void buildAboutTable() {
     aboutRow("OTA_L2", "OTA Terminal Command", "OTA_V2", otaCmd.c_str(), "font-size:11px");
     }   // ShowOtaInfo
 
-    WT_SectionHeader("Network");
+    WT_SectionTitle("NETWORK");
     aboutRow("NET_L1", "WiFi Network",       "NET_V1", ssid.c_str());
     aboutRow("NET_L6", "Signal (dBm)",       "NET_V6", rssi.c_str());
     aboutRow("NET_L2", "IP Address",         "NET_V2", ip.c_str());
@@ -223,7 +225,7 @@ static void buildAboutTable() {
     String hMin   = String(ESP.getMinFreeHeap())  + " B";
     String hBlk   = String(ESP.getMaxAllocHeap()) + " B";
     String psram  = String(ESP.getFreePsram() / 1024) + " of " + String(ESP.getPsramSize() / 1024) + " KB";
-    WT_SectionHeader("Memory  (at page load - /api/sysinfo for plain text)");
+    WT_SectionTitle("MEMORY");   // snapshot at page load (/api/sysinfo for plain text)
     aboutRow("MEM_L0", "Uptime",                     "MEM_V0", up.c_str());
     aboutRow("MEM_L1", "Heap Free",                  "MEM_V1", hFree.c_str());
     aboutRow("MEM_L2", "Heap Lowest since Boot",     "MEM_V2", hMin.c_str());
@@ -232,8 +234,8 @@ static void buildAboutTable() {
     aboutRow("MEM_L4", "PSRAM Free",                 "MEM_V4", psram.c_str());
 
     UBaseType_t n = readTasks();
-    String hdr = "Tasks  (" + String((unsigned)n) + ")";
-    WT_SectionHeader(hdr.c_str());
+    String hdr = "TASKS (" + String((unsigned)n) + ")";
+    WT_SectionTitle(hdr.c_str());
     for (UBaseType_t i = 0; i < n; i++){
         char idL[12], idV[12];
         snprintf(idL, sizeof(idL), "TSK_L%u", (unsigned)i);
@@ -258,16 +260,17 @@ static void buildProjectInfoDiv() {
     char buildDate[32];
     snprintf(buildDate, sizeof(buildDate), "%s %s %s %s", bDay, bMon, bYr, __TIME__);
 
-    appendHtmlStr("<div><br></div>");
-    appendHtmlStr("<div style='font-size:14px; text-align:center;'>");
-    appendHtmlStr("<b>Project:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>Rain Gauge (tipping bucket)");
-    appendHtmlStr("<br><b>Firmware:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>" FW_VERSION);
-    appendHtmlStr("<br><b>Build Date:&nbsp;&nbsp;&nbsp;&nbsp;</b>");
-    appendHtmlStr(buildDate);
-    appendHtmlStr("<br><b>PCB:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>RAINMETER_V1");
-    appendHtmlStr("<br><b>Board:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>WEMOS LOLIN S2 Mini");
+    // Two-column table like the other ABOUT sections (label left, value right).
     // IP and MAC are in the Network section above — not repeated here.
-    appendHtmlStr("</div>");
+    appendHtmlStr("<div style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:14px 0 4px'>PROJECT</div>"
+                  "<table class='info'>"
+                  "<tr><td>Project</td><td>Rain Gauge (tipping bucket)</td></tr>"
+                  "<tr><td>Build Date</td><td>");
+    appendHtmlStr(buildDate);
+    appendHtmlStr("</td></tr>"
+                  "<tr><td>PCB</td><td>RAINMETER_V1</td></tr>"
+                  "<tr><td>Board</td><td>WEMOS LOLIN S2 Mini</td></tr>"
+                  "</table>");
 }
 
 // =============================================================================
@@ -287,10 +290,15 @@ void handleAbout(AsyncWebServerRequest *request) {
     appendHtmlStr(webScriptTag);
     appendHtmlBuf(PageBuf, getPageBufLen());
     appendAccessInfo(request);  // "Your connection" — home network / outside (23_Access.cpp)
-    webRebootButton();
     // (WiFi networks are managed on the SETTINGS page — 05_WiFi.cpp)
     appendFwUpdateBlock();      // 22_Update.cpp
     buildProjectInfoDiv();
+    // NETWORK → mDNS as a clickable link.  The rows are drawn by wss.js as plain
+    // text, so wait for the cell (NET_V4) and wrap its text in an <a>.
+    appendHtmlStr("<script>(function m(n){var e=document.getElementById('NET_V4');"
+                  "if(!e||!e.textContent){if(n<50)setTimeout(function(){m(n+1);},100);return;}"
+                  "var u=e.textContent.trim(),a=document.createElement('a');a.href=u;a.textContent=u;"
+                  "a.style.color='#0284c7';e.textContent='';e.appendChild(a);})(0);</script>");
     appendHtmlStr(webHTMLEnd);
     sendHtmlPage(request);
 }

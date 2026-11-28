@@ -1,5 +1,5 @@
 // =============================================================================
-// 22_Update.cpp — Firmware update from GitHub or from an uploaded .bin
+// 22_Update.cpp — Firmware update from GitHub
 // =============================================================================
 // See 22_Update.h.
 // =============================================================================
@@ -16,7 +16,7 @@
 // Kept in the binary (used below), so every rain gauge .bin contains it.
 static const char fwMarker[] = FW_MARKER;
 
-// ─── Image checks, shared by both ways ───────────────────────────────────────
+// ─── Image checks ───────────────────────────────────────
 // Streaming search for fwMarker ('#' occurs once in it, so a simple reset on
 // mismatch is enough) + the ESP image header: magic 0xE9, chip id 2 = ESP32-S2.
 
@@ -197,14 +197,12 @@ static void doInstall(){
 
 // ─── Requests from the ABOUT page (async_tcp -> loop) ────────────────────────
 static volatile uint8_t fwRequest = 0;   // 1 = check, 2 = install
-static volatile bool    fwRestart = false;
 
 void handleFwCheck(AsyncWebServerRequest* r)  { if (!FwBusy) fwRequest = 1; r->send(200, "text/plain", "OK"); }
 void handleFwInstall(AsyncWebServerRequest* r){ if (!FwBusy) fwRequest = 2; r->send(200, "text/plain", "OK"); }
 
 // Called every 10 ms from loop().
 void MaintainFwUpdate(){
-	if (fwRestart){ delay(1500); ESP.restart(); }
 	uint8_t req = fwRequest;
 	if (!req) return;
 	fwRequest = 0;
@@ -213,49 +211,10 @@ void MaintainFwUpdate(){
 	else          doInstall();
 }
 
-// ─── UPLOAD .bin (POST /update, multipart) ───────────────────────────────────
-// The upload callback runs in async_tcp: it only writes the spare partition
-// (Update is self-contained); the restart is left to loop().
-static ImageCheck upChk;
-static String     upErr;
-
-void handleFwUploadData(AsyncWebServerRequest* request, String filename, size_t index,
-                        uint8_t* data, size_t len, bool final){
-	if (index == 0){
-		upChk = ImageCheck(); upErr = "";
-		if (FwBusy){ upErr = "another update is running"; return; }
-		FwBusy = true;
-		FwStatus = fwStatusLine("Receiving " + filename + "...");
-		if (!Update.begin(UPDATE_SIZE_UNKNOWN, U_FLASH)) upErr = "no room for the new firmware (" + String(Update.errorString()) + ")";
-	}
-	if (upErr.length()) return;
-	upChk.feed(data, len);
-	String hp = upChk.headerProblem();
-	if (hp.length()){ upErr = hp; Update.abort(); return; }
-	if (Update.write(data, len) != len){ upErr = "flash write failed (" + String(Update.errorString()) + ")"; Update.abort(); return; }
-	if (final){
-		if (!upChk.marker){ upErr = "file is not rain gauge firmware"; Update.abort(); return; }
-		if (!Update.end(true)) upErr = "image check failed (" + String(Update.errorString()) + ")";
-	}
-}
-
-void handleFwUploadDone(AsyncWebServerRequest* request){
-	if (upErr.length() || Update.hasError()){
-		String e = upErr.length() ? upErr : String(Update.errorString());
-		FwStatus = fwStatusLine("Upload FAILED: " + e + " - the old firmware keeps running");
-		FwBusy = false;
-		request->send(200, "text/plain", "FAILED: " + e);
-		return;
-	}
-	FwStatus = fwStatusLine("Uploaded firmware installed - restarting...");
-	request->send(200, "text/plain", "OK - installed, the gauge restarts");
-	fwRestart = true;     // loop() restarts (and SaveGenReport is not called from async_tcp)
-}
-
 // ─── ABOUT page block ────────────────────────────────────────────────────────
 void appendFwUpdateBlock(){
 	appendHtmlStr("<div style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:14px 0 4px'>FIRMWARE UPDATE</div>"
-	              "<table><tr><td>Installed</td><td>" FW_VERSION "</td></tr>"
+	              "<table class='info'><tr><td>Installed Firmware</td><td>" FW_VERSION "</td></tr>"
 	              "<tr><td>On GitHub</td><td><span id='FWLATEST'>");
 	appendHtmlStr(FwLatest.c_str());
 	appendHtmlStr("</span></td></tr><tr><td>Status</td><td><span id='FWSTAT' style='font-size:12px'>");
@@ -264,17 +223,5 @@ void appendFwUpdateBlock(){
 	              "<div class='btns'>"
 	              "<button class='btn btn-bl' onclick=\"fetch('/fwcheck',{method:'POST'})\">CHECK FOR UPDATE</button>"
 	              "<button class='btn btn-gr' onclick=\"if(confirm('Install the version from GitHub?\\n\\nThe gauge downloads it (about a minute) and restarts.\\nSettings and rain history are kept.'))fetch('/fwinstall',{method:'POST'})\">INSTALL FROM GITHUB</button>"
-	              "</div>"
-	              "<div style='padding:4px 8px;font-size:12px;color:#475569'>Or upload a <b>.bin</b> file "
-	              "(downloaded from the GitHub page) from this PC / phone:<br>"
-	              "<input type='file' id='fwfile' accept='.bin' style='margin:6px 0'> "
-	              "<button class='btn btn-or' onclick='fwUpload()'>UPLOAD &amp; INSTALL</button> "
-	              "<span id='fwup'></span></div>"
-	              "<script>function fwUpload(){var f=document.getElementById('fwfile').files[0];"
-	              "var o=document.getElementById('fwup');if(!f){o.textContent='Choose a .bin file first';return;}"
-	              "var fd=new FormData();fd.append('firmware',f,f.name);var x=new XMLHttpRequest();"
-	              "x.upload.onprogress=function(e){if(e.lengthComputable)o.textContent='Uploading '+Math.round(e.loaded*100/e.total)+'%';};"
-	              "x.onload=function(){o.textContent=x.responseText;if(x.responseText.indexOf('OK')==0)setTimeout(function(){location.reload();},20000);};"
-	              "x.onerror=function(){o.textContent='Upload failed (connection)';};"
-	              "x.open('POST','/update');x.send(fd);}</script>");
+	              "</div>");
 }

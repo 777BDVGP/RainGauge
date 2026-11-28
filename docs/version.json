@@ -1,5 +1,5 @@
 {
-  "version": "1.12.0",
+  "version": "1.12.1",
   "bin": "firmware/raingauge.bin",
-  "notes": "Remote access password (outside visitors see HOME and REPORTS only), fast WiFi rejoin after a restart, quicker recovery from low memory / lost network"
+  "notes": "ABOUT tidy-up (headings, project table, mDNS link), .bin upload removed, NTFY SETTINGS heading"
 }

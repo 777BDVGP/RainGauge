@@ -70,6 +70,7 @@ void   WT_EndPage();
 void   WT_EndPageClass(const char* cls);
 void   WT_Header(const char* Header);
 void   WT_SectionHeader(const char* Header);
+void   WT_SectionTitle(const char* Title);   // blue centred heading row (ABOUT)
 void   WT_StartLine();
 void   WT_EndLine();
 void   WT_StartLabel();
@@ -110,8 +111,6 @@ void   handleWifiScan(AsyncWebServerRequest *request);
 // ─── 22_Update.cpp ────────────────────────────────────────────────────────────
 void   handleFwCheck(AsyncWebServerRequest* r);
 void   handleFwInstall(AsyncWebServerRequest* r);
-void   handleFwUploadData(AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final);
-void   handleFwUploadDone(AsyncWebServerRequest* request);
 void   MaintainFwUpdate();
 void   SendFwValues();
 void   appendFwUpdateBlock();
@@ -126,7 +125,6 @@ void   UpdateHomeBeam();
 void   UpdateHomeValues();
 void   SendHomePageValues();
 void   MaintainHomePage();
-void   webRebootButton();
 
 // ─── 10_Reports.cpp ───────────────────────────────────────────────────────────
 void   handleReports(AsyncWebServerRequest *request);

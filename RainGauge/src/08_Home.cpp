@@ -263,15 +263,6 @@ void UpdateHomeBeam(){
 	HomeBeamStyle = broken ? ATT_RED : ATT_GREEN;
 }
 
-// -----------------------------------------------------------------------------
-// webRebootButton
-// Returns an HTML button that calls ButtonReboot() via WebSocket when clicked.
-// -----------------------------------------------------------------------------
-void webRebootButton()
-{
-	appendHtmlStr("<div><br></div><div><b><a>");
-	appendHtmlStr("<b><a><input type=\"button\" id=\"REBOOT\" onclick=\"ButtonReboot()\" style=\"font-size:14px;background-color:#dc2626;color:#fff;border:none;padding:6px 14px;border-radius:4px;cursor:pointer\" value=\"REBOOT\"</a></b></div>");
-}
 
 // -----------------------------------------------------------------------------
 // SendHomePageValues  (called every 50 ms from MaintainWebPageValues)

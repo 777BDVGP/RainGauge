@@ -127,7 +127,8 @@ void handleNtfy(AsyncWebServerRequest *request) {
 	// ── How to set NTFY up on a phone — above the parameter table.
 	// Tick box shows / hides the help; the choice is remembered in this browser
 	// (localStorage) — ticked the first time, so a new user sees it at once.
-	appendHtmlStr("<div style='margin:8px 0 0;font-size:13px;text-align:left'><label>"
+	appendHtmlStr("<div style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:14px 0 4px'>NTFY SETTINGS</div>"
+	              "<div style='margin:8px 0 0;font-size:13px;text-align:left'><label>"
 	              "<input type='checkbox' id='ntfyhelpcb' checked onchange='ntfyHelp(this.checked,1)'> "
 	              "Show help (how NTFY works)</label></div>"
 	              "<div id='ntfyhelp' style='background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:8px 10px;margin:4px 0 8px;font-size:12px;line-height:1.5;color:#334155'>"

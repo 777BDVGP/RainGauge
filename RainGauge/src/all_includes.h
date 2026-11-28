@@ -20,6 +20,6 @@
 #include "19_Irrigation.h"  // "Irrigate today?" answer for an irrigation controller (/api/irrigate)
 #include "20_WaterBalance.h" // FAO-56 soil-water balance behind that answer
 #include "21_TempHistory.h" // Daily min/max temperature history + records
-#include "22_Update.h"       // Firmware update from GitHub / uploaded .bin (ABOUT)
+#include "22_Update.h"       // Firmware update from GitHub (ABOUT)
 #include "23_Access.h"       // Remote access password (outside visitors)
 #include "forward_decls.h"  // All cross-file forward declarations

@@ -41,8 +41,7 @@ is a web page on your own WiFi; no cloud, no app needed.
   - **FILES** — the files on the gauge (view, download, upload, delete).
   - **NTFY** — free push alerts on your phone (ntfy.sh): IR sensor fault, high / low
     outside temperature; IR sensor test with live beam status.
-  - **ABOUT** — network, firmware **update from GitHub** (CHECK / INSTALL) or from an
-    uploaded `.bin`.
+  - **ABOUT** — network, remote access, firmware **update from GitHub** (CHECK / INSTALL).
 - **Remote access** — visitors from outside your network (port forward) see only
   HOME and REPORTS; with a password (set on SETTINGS, only from home) they can
   LOG IN for one day and use everything. See the
@@ -351,8 +350,8 @@ list, not replacing the others).
 ABOUT page → **CHECK FOR UPDATE** → **INSTALL FROM GITHUB**. The new firmware goes
 into the spare app slot and is only used when it arrived complete and verified
 (HTTPS with certificate check); settings, calibration and rain history are kept.
-Without internet at the gauge: download `docs/firmware/raingauge.bin` and use
-**UPLOAD & INSTALL** on the ABOUT page.
+Without internet at the gauge: install with a USB cable from the install page
+(uploading a `.bin` on the ABOUT page was removed in 1.12.1).
 
 ## Pin map
 

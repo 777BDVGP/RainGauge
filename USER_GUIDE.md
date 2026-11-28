@@ -211,11 +211,17 @@ Switch Simulation Mode off again before real use.
   **INSTALL FROM GITHUB** downloads it (about 20 s) and restarts. Settings,
   calibration and rain history are kept; a failed download leaves the old
   firmware running.
-- No internet at the gauge? Download `raingauge.bin` from the
-  [install page](https://777bdvgp.github.io/RainGauge/) and use **UPLOAD &
-  INSTALL**.
-- **Network:** WiFi network, signal, IP and MAC address. **REBOOT** restarts
-  the gauge.
+- Updates come only from GitHub (uploading a `.bin` file on the ABOUT page was
+  removed in 1.12.1). A gauge without internet can be updated with a USB cable
+  from the [install page](https://777bdvgp.github.io/RainGauge/).
+- **NETWORK:** WiFi network, signal, the gauge's IP address, gateway, MAC address
+  and its mDNS name (`http://raingauge.local/`, a link — works on PCs and
+  iPhones on your home network; many Android phones cannot open `.local` names,
+  use the IP address there).
+- **REMOTE ACCESS:** the address of the device you are viewing the page from
+  (your PC / phone, not the gauge) and whether a remote access password is set.
+- **PROJECT:** project, build date, PCB and board.
+- To restart the gauge use **REBOOT** on SETTINGS.
 
 ## 12. Files
 
@@ -268,8 +274,8 @@ The gauge tells visitors apart by their address:
 4. **Wrong passwords:** after 5 in a row the login is locked for 15 minutes.
    Every outside login and every wrong password is written to the General Log
    with the visitor's address.
-5. **Check it:** ABOUT → **Your connection** shows "Home network" or "Outside"
-   with the address the gauge sees. Try it once from a phone on mobile data
+5. **Check it:** ABOUT → REMOTE ACCESS → **Your device (viewing this page)**
+   shows the address the gauge sees and "home network" or "outside". Try it once from a phone on mobile data
    (WiFi off): the menu must show only HOME | REPORTS. If it shows OTHER, your
    router hides the visitor's address on the port forward — then do not forward
    a port to the gauge.

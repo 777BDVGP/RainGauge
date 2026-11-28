@@ -356,10 +356,12 @@ void appendAccessSection(){
 void appendAccessInfo(AsyncWebServerRequest* request){
 	String ip = request->client() ? request->client()->remoteIP().toString() : "?";
 	bool local = AccessIsLocal(request);
-	appendHtmlStr("<table class='info'><tr><td>Your connection</td><td>");
-	appendHtmlStr(local ? "Home network (" : "Outside (");
+	// The VISITOR's address (PC / phone viewing this page) — not the gauge's,
+	// which is under NETWORK → IP Address.
+	appendHtmlStr("<div style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:14px 0 4px'>REMOTE ACCESS</div>"
+	              "<table class='info'><tr><td>Your device (viewing this page)</td><td>");
 	appendHtmlStr(ip.c_str());
-	appendHtmlStr(local ? ") - no password needed" : ") - logged in");
+	appendHtmlStr(local ? " - home network, no password needed" : " - outside, logged in");
 	appendHtmlStr("</td></tr><tr><td>Remote access password</td><td>");
 	appendHtmlStr(AccessPasswordSet() ? "Set" : "Not set - outside visitors see only HOME and REPORTS");
 	appendHtmlStr("</td></tr></table>");

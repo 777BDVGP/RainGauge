@@ -248,7 +248,9 @@ inline char webSocketScript[] PROGMEM = R"=====(
 				const cell = document.createElement("td");
 				cell.colSpan = 2;
 				cell.textContent = parameter.sectionHeader;
-				cell.style.cssText = "font-weight:bold;padding:4px 6px;text-align:left;";
+				cell.style.cssText = parameter.title   // WT_SectionTitle: blue centred heading (ABOUT)
+					? "font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;text-align:center;padding:14px 6px 4px;border-bottom:none;"
+					: "font-weight:bold;padding:4px 6px;text-align:left;";
 				row.appendChild(cell);
 				tableElement.appendChild(row);
 				continue;
@@ -314,7 +316,7 @@ inline char webSocketScript[] PROGMEM = R"=====(
 // Tag emitted by every page instead of inlining webSocketScript.  The ?v=
 // number is the cache-buster — bump it whenever webSocketScript changes so
 // browsers re-fetch /wss.js.
-#define webScriptTag "<script src='/wss.js?v=10'></script>\n"
+#define webScriptTag "<script src='/wss.js?v=11'></script>\n"
 
 inline char webHTMLEnd[] PROGMEM = R"=====(
 </body>

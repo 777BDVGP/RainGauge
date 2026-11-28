@@ -244,7 +244,6 @@ void AddRoutes(){
 	server.on("/wifiscan",       HTTP_GET,  AccessGuard(handleWifiScan));      // SETTINGS "Networks in range" (05_WiFi.cpp)
 	server.on("/fwcheck",    HTTP_POST, AccessGuard(handleFwCheck));          // ABOUT "CHECK FOR UPDATE" (22_Update.cpp)
 	server.on("/fwinstall",  HTTP_POST, AccessGuard(handleFwInstall));        // ABOUT "INSTALL FROM GITHUB"
-	server.on("/update",     HTTP_POST, AccessGuard(handleFwUploadDone), AccessGuardUpload(handleFwUploadData));  // ABOUT ".bin upload"
 
 	// ── File Manager ──────────────────────────────────────────────────────────
 	server.on("/files/view",   AccessGuard(handleFileView));
