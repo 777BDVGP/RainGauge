@@ -145,21 +145,44 @@ static void appendRainfallTables(){
 }
 
 // -----------------------------------------------------------------------------
-// handleReports  (GET /reports)
+// Report pages - one per main tab (one REPORTS page until 1.11.0)
+//   /rain          RAIN         rainfall per month / day / hour
+//   /temperature   TEMPERATURE  temperature records + history (21_TempHistory.cpp)
+//   /waterbalance  WATER BALANCE   last 14 days (20_WaterBalance.cpp)
+//   /reports       old link -> /rain  (REPORTS tab opens /rain)
 // -----------------------------------------------------------------------------
-void handleReports(AsyncWebServerRequest *request){
-	if (!beginHtmlStream(request)) return;
+static bool reportStart(AsyncWebServerRequest *request, int mess, int page){
+	if (!beginHtmlStream(request)) return false;
 	resetHtmlBuf();
 	appendHtmlStr(webHeadPage);
-	append_FileAction(FA_MESS_08);
-	appendMainPageSel(PS_REPORTS);
+	append_FileAction(mess);
+	appendMainPageSel(page);
 	appendHtmlStr(webScriptTag);
+	return true;
+}
 
-	if (!IrrigationOff()) appendWaterBalanceTable();   // 20_WaterBalance.cpp — hidden for "No Irrigation"
+void handleRainReport(AsyncWebServerRequest *request){
+	if (!reportStart(request, FA_MESS_RAIN, PS_RAIN)) return;
 	appendRainfallTables();
-	appendTempHistoryTables();   // 21_TempHistory.cpp
-	// General Log is not shown here any more — it's on the FILES page (GeneralLog.txt).
-
 	appendHtmlStr(webHTMLEnd);
 	sendHtmlPage(request);
+}
+
+void handleTempReport(AsyncWebServerRequest *request){
+	if (!reportStart(request, FA_MESS_TEMP, PS_TEMP)) return;
+	appendTempHistoryTables();   // 21_TempHistory.cpp
+	appendHtmlStr(webHTMLEnd);
+	sendHtmlPage(request);
+}
+
+void handleWaterBalReport(AsyncWebServerRequest *request){
+	if (IrrigationOff()) { request->redirect("/rain"); return; }   // tab hidden for "No Irrigation"
+	if (!reportStart(request, FA_MESS_WB, PS_WATERBAL)) return;
+	appendWaterBalanceTable();   // 20_WaterBalance.cpp
+	appendHtmlStr(webHTMLEnd);
+	sendHtmlPage(request);
+}
+
+void handleReports(AsyncWebServerRequest *request){
+	request->redirect("/rain");   // old bookmarks
 }

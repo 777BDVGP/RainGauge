@@ -32,15 +32,17 @@ is a web page on your own WiFi; no cloud, no app needed.
 
 - **HOME** — live bucket position (IR beam OPEN / BROKEN), rain today / this month,
   last tip, outside temperature, irrigation answer.
-- **REPORTS** — rainfall per month / day / hour, temperature records and daily
-  min / max, water balance history.
-- **SETTINGS** — WiFi networks (list, add, delete), funnel size, calibration, tip debounce, IR self-test interval,
-  irrigation method (*Water Balance*, *Simple Rule* or *No Irrigation*), controller
-  name, START FRESH (clear data, keep settings), SIMULATION.
-- **NTFY** — free push alerts on your phone (ntfy.sh): IR sensor fault, high / low
-  outside temperature; IR sensor test with live beam status.
-- **ABOUT** — network, firmware **update from GitHub** (CHECK / INSTALL) or from an
-  uploaded `.bin`.
+- **REPORTS** — three tabs: **RAIN** (rainfall per month / day / hour),
+  **TEMPERATURE** (records and daily min / max), **WATER BALANCE** (history).
+- **OTHER** — a second row of tabs with SETTINGS, FILES, NTFY and ABOUT:
+  - **SETTINGS** — WiFi networks (list, add, delete), funnel size, calibration, tip debounce, IR self-test interval,
+    irrigation method (*Water Balance*, *Simple Rule* or *No Irrigation*), controller
+    name, START FRESH (clear data, keep settings), SIMULATION.
+  - **FILES** — the files on the gauge (view, download, upload, delete).
+  - **NTFY** — free push alerts on your phone (ntfy.sh): IR sensor fault, high / low
+    outside temperature; IR sensor test with live beam status.
+  - **ABOUT** — network, firmware **update from GitHub** (CHECK / INSTALL) or from an
+    uploaded `.bin`.
 - **`/api/irrigate`** — JSON answer any irrigation controller can poll.
 
 ## 1. Printing the parts

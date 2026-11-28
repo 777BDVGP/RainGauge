@@ -258,6 +258,9 @@ void append_FileAction(int ReqMess)
 		case FA_MESS_08: Message = "Reports";                            LColor = COLOR_BLUE;    break;
 		case FA_MESS_09: Message = "File Not Found";                     LColor = COLOR_RED;     break;
 		case FA_MESS_10: Message = "NTFY Notifications";                 LColor = COLOR_BLUE;    break;
+		case FA_MESS_RAIN: Message = "Rain Report";                      LColor = COLOR_BLUE;    break;
+		case FA_MESS_TEMP: Message = "Temperature Report";               LColor = COLOR_BLUE;    break;
+		case FA_MESS_WB:   Message = "Water Balance Report";             LColor = COLOR_BLUE;    break;
 		case FA_MESS_RED: Message = SpesialStr.c_str();                  LColor = COLOR_RED;     break;
 		case FA_MESS_GRN: Message = SpesialStr.c_str();                  LColor = COLOR_GREEN;   break;
 		default:          Message = "";                                  LColor = COLOR_BLUE;    break;

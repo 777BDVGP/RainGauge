@@ -217,7 +217,10 @@ void AddRoutes(){
 	// Only raises a flag — MaintainRain() does the stop in loop().
 	server.on("/calstop", HTTP_POST, [](AsyncWebServerRequest *request){ CalStopRequested = true; request->send(204); });
 	server.on("/simulate", handleSimulate);  // Simulation mode  (18_Simulation.cpp) — via SETTINGS
-	server.on("/reports",  handleReports);   // Reports          (10_Reports.cpp)
+	server.on("/rain",         handleRainReport);     // REPORTS > RAIN          (10_Reports.cpp)
+	server.on("/temperature",  handleTempReport);     // REPORTS > TEMPERATURE   (10_Reports.cpp)
+	server.on("/waterbalance", handleWaterBalReport); // REPORTS > WATER BALANCE (10_Reports.cpp)
+	server.on("/reports",      handleReports);        // old link -> /rain
 	server.on("/ntfy",     handleNtfy);      // NTFY push        (13_Ntfy.cpp)
 	server.on("/testntfy", handleTestNtfy);  // Send test NTFY   (13_Ntfy.cpp)
 	server.on("/irtest", HTTP_POST, handleIrTestNow); // NTFY page "TEST IR SENSOR NOW" (13_Ntfy.cpp)
@@ -225,7 +228,7 @@ void AddRoutes(){
 	server.on("/about",    handleAbout);     // About / OTA      (15_About.cpp)
 	server.on("/wss.js",   handleWssJs);     // Cached client script (04_WebPages.cpp)
 	server.on("/api/irrigate", handleApiIrrigate); // JSON answer for the irrigation controller (19_Irrigation.cpp)
-	server.on("/resettemprecords", handleResetTempRecords); // REPORTS button (21_TempHistory.cpp)
+	server.on("/resettemprecords", handleResetTempRecords); // TEMPERATURE page button (21_TempHistory.cpp)
 	server.on("/startfresh", HTTP_POST, handleStartFresh);  // SETTINGS "START FRESH" (12_Settings.cpp)
 	server.on("/wifinet/add",    HTTP_POST, handleWifiNetAdd);    // SETTINGS "WiFi Networks" (05_WiFi.cpp)
 	server.on("/wifinet/delete", HTTP_POST, handleWifiNetDelete);

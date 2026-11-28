@@ -1,5 +1,5 @@
 {
-  "version": "1.10.7",
+  "version": "1.11.0",
   "bin": "firmware/raingauge.bin",
-  "notes": "NTFY page: IR SENSOR TEST table no longer cramped on a phone"
+  "notes": "New menu: HOME | REPORTS (RAIN, TEMPERATURE, WATER BALANCE) | OTHER (SETTINGS, FILES, NTFY, ABOUT)"
 }

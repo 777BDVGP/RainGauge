@@ -79,7 +79,7 @@ void appendIrrigationHelp(){
 			     "the first watering comes after about <b>" + String(days) + " dry days</b>.<br>";
 		s += "<b>To water more often:</b> lower <i>Irrigate when Soil Water Used (%)</i>, a shallower Root Depth or Sand soil. "
 		     "<b>Less often:</b> the opposite, or a lower Garden Factor Kc. All on SETTINGS &rarr; Irrigation. "
-		     "Day by day figures: REPORTS &rarr; Water Balance.";
+		     "Day by day figures: REPORTS &rarr; WATER BALANCE.";
 	}
 	s += "</div></div>"
 	     "<script>function irriHelp(on,save){document.getElementById('irrihelp').style.display=on?'block':'none';"
@@ -94,16 +94,42 @@ void appendIrrigationHelp(){
 
 // -----------------------------------------------------------------------------
 // appendMainPageSel
-// Builds the top navigation tab strip: HOME, REPORTS, SETTINGS, FILES, NTFY, ABOUT.
+// Main row:  HOME | REPORTS | OTHER
+// REPORTS opens RAIN; on its pages a second row RAIN | TEMPERATURE |
+// WATER BALANCE shows the page (WATER BALANCE hidden for "No Irrigation").
+// OTHER opens SETTINGS; on SETTINGS / FILES / NTFY / ABOUT (and CALIBRATION /
+// SIMULATION, which count as SETTINGS) a second row SETTINGS | FILES | NTFY |
+// ABOUT shows the page.
 // -----------------------------------------------------------------------------
+static void navTab(bool act, const char* href, const char* label){
+	if (act) { appendHtmlStr("<a class='act'>"); }
+	else     { appendHtmlStr("<a href='"); appendHtmlStr(href); appendHtmlStr("'>"); }
+	appendHtmlStr(label);
+	appendHtmlStr("</a>");
+}
+
 void appendMainPageSel(int Index){
+	bool reports = (Index == PS_RAIN || Index == PS_TEMP || Index == PS_WATERBAL);
+	bool other   = (Index == PS_SETTINGS || Index == PS_FILES || Index == PS_NTFY || Index == PS_ABOUT);
 	appendHtmlStr("<div class='nav'>");
-	appendHtmlStr(Index == PS_HOME     ? "<a class='act'>HOME</a>"     : "<a href='/'>HOME</a>");
-	appendHtmlStr(Index == PS_REPORTS  ? "<a class='act'>REPORTS</a>"  : "<a href='/reports'>REPORTS</a>");
-	appendHtmlStr(Index == PS_SETTINGS ? "<a class='act'>SETTINGS</a>" : "<a href='/settings'>SETTINGS</a>");
-	appendHtmlStr(Index == PS_FILES    ? "<a class='act'>FILES</a>"    : "<a href='/files'>FILES</a>");
-	appendHtmlStr(Index == PS_NTFY     ? "<a class='act'>NTFY</a>"     : "<a href='/ntfy'>NTFY</a>");
-	appendHtmlStr(Index == PS_ABOUT    ? "<a class='act'>ABOUT</a>"    : "<a href='/about'>ABOUT</a>");
+	navTab(Index == PS_HOME, "/", "HOME");
+	appendHtmlStr(reports ? "<a class='act' href='/rain'>REPORTS</a>"  : "<a href='/rain'>REPORTS</a>");
+	appendHtmlStr(other   ? "<a class='act' href='/settings'>OTHER</a>" : "<a href='/settings'>OTHER</a>");
+	appendHtmlStr("</div>");
+	if (reports){
+		appendHtmlStr("<div class='nav sub'>");
+		navTab(Index == PS_RAIN, "/rain",        "RAIN");
+		navTab(Index == PS_TEMP, "/temperature", "TEMPERATURE");
+		if (!IrrigationOff()) navTab(Index == PS_WATERBAL, "/waterbalance", "WATER BALANCE");
+		appendHtmlStr("</div>");
+		return;
+	}
+	if (!other) return;
+	appendHtmlStr("<div class='nav sub'>");
+	navTab(Index == PS_SETTINGS, "/settings", "SETTINGS");
+	navTab(Index == PS_FILES,    "/files",    "FILES");
+	navTab(Index == PS_NTFY,     "/ntfy",     "NTFY");
+	navTab(Index == PS_ABOUT,    "/about",    "ABOUT");
 	appendHtmlStr("</div>");
 }
 

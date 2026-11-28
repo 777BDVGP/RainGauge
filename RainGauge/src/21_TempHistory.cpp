@@ -120,16 +120,16 @@ void TempHistoryTrack(float outside, float inside){
 	}
 }
 
-// GET /resettemprecords — from the REPORTS page.  Records restart from the
+// GET /resettemprecords — from the TEMPERATURE page.  Records restart from the
 // current readings; the daily history file is kept.
 // Runs in async_tcp — only raises a flag; MaintainTempRecordsReset() (loop)
-// does the reset.  The redirected REPORTS page may still show the old
+// does the reset.  The redirected TEMPERATURE page may still show the old
 // records if it loads within the same 10 ms.
 static volatile bool thResetRequested = false;
 
 void handleResetTempRecords(AsyncWebServerRequest *request){
 	thResetRequested = true;
-	request->redirect("/reports");
+	request->redirect("/temperature");
 }
 
 // Called every 10 ms from loop().
@@ -181,7 +181,7 @@ void TempHistoryGenerate(int days){
 }
 
 // =============================================================================
-// REPORTS — records, last 31 days, monthly summary (outside)
+// TEMPERATURE page — records, last 31 days, monthly summary (outside)
 // =============================================================================
 
 static void cell(String& row, const String& v){ row += "<td>" + (v.length() ? v : String("-")) + "</td>"; }

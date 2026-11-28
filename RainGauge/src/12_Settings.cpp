@@ -203,7 +203,7 @@ void MapSettingsPage(){
 				SettingsList[i].Var = new PageElement(&Params->ShowOtaInfo, F("Show PC Upload (OTA) on ABOUT"), "", &SetStyle, i+ID_SETTINGS);
 				break;
 			case SET_SHOW_INSIDE:
-				SettingsList[i].Var = new PageElement(&Params->ShowInsideTemp, F("Show Inside Temperature (HOME, REPORTS)"), "", &SetStyle, i+ID_SETTINGS);
+				SettingsList[i].Var = new PageElement(&Params->ShowInsideTemp, F("Show Inside Temperature (HOME, TEMPERATURE)"), "", &SetStyle, i+ID_SETTINGS);
 				break;
 			case SET_CTRL_NAME:
 				SettingsList[i].Var = new PageElement(&Params->ControllerName, F("Irrigation Controller Name"), "", &SetStyle, i+ID_SETTINGS);

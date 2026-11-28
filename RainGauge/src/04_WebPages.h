@@ -35,6 +35,9 @@ inline const char COLOR_VIOLET[]  = "color:#ff00ff";
 #define FA_MESS_11   11
 #define FA_MESS_RED  12
 #define FA_MESS_GRN  13
+#define FA_MESS_RAIN 14
+#define FA_MESS_TEMP 15
+#define FA_MESS_WB   16
 
 inline int Delmess = FA_MESS_06;
 
@@ -63,6 +66,10 @@ inline char webHeadPage[] PROGMEM = R"=====(
 		.nav a.act{background:#0284c7;color:#fff}
 		.nav a.warn{background:#dc2626;color:#fff}
 		.nav a.warn:hover{background:#b91c1c}
+		.nav.sub{margin:-2px 0 6px;border-color:#7dd3fc}
+		.nav.sub a{padding:6px 4px;font-size:11px;background:#e0f2fe;border-right-color:#7dd3fc}
+		.nav.sub a.act{background:#38bdf8;color:#fff}
+		@media(max-width:400px){.nav a{font-size:11px;padding:10px 2px;min-width:0}.nav.sub a{font-size:10px;padding:6px 2px}}
 		table{width:100%;border-collapse:collapse;font-size:13px;margin:4px 0}
 		.hd td,.hd th{color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid #cbd5e1;padding:4px 6px;text-align:left}
 		.hd th:last-child,.hd td:last-child{text-align:right}

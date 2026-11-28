@@ -129,7 +129,10 @@ void   MaintainHomePage();
 void   webRebootButton();
 
 // ─── 10_Reports.cpp ───────────────────────────────────────────────────────────
-void   handleReports(AsyncWebServerRequest *request);
+void   handleReports(AsyncWebServerRequest *request);        // old link -> /rain
+void   handleRainReport(AsyncWebServerRequest *request);
+void   handleTempReport(AsyncWebServerRequest *request);
+void   handleWaterBalReport(AsyncWebServerRequest *request);
 
 // ─── 12_Settings.cpp ──────────────────────────────────────────────────────────
 void   CreateAllParams();

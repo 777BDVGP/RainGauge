@@ -309,7 +309,7 @@ void WaterBalanceReplay(int days){
 }
 
 // =============================================================================
-// REPORTS — last 14 finished days
+// WATER BALANCE page — last 14 finished days
 // =============================================================================
 void appendWaterBalanceTable(){
 	const int N = 14;

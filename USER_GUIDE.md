@@ -29,8 +29,16 @@ WiFi — phone or PC. The pages need no login — anyone on your WiFi can open t
 
 ## 2. The pages
 
-The menu at the top: **HOME**, **REPORTS**, **SETTINGS**, **NTFY**, **FILES**,
-**ABOUT**. CALIBRATION and SIMULATION are opened from SETTINGS.
+The menu at the top: **HOME** | **REPORTS** | **OTHER**. REPORTS and OTHER
+each open a second row of tabs:
+
+| Tab | Second row |
+|---|---|
+| REPORTS | **RAIN** \| **TEMPERATURE** \| **WATER BALANCE** (hidden with *No Irrigation*) |
+| OTHER | **SETTINGS** \| **FILES** \| **NTFY** \| **ABOUT** |
+
+CALIBRATION and SIMULATION are opened from SETTINGS. Where this guide says
+e.g. "SETTINGS" or "NTFY page", find it under OTHER.
 
 ## 3. HOME — live values
 
@@ -99,14 +107,16 @@ Calibrate again after moving or re-levelling the gauge.
 
 ## 6. Reports
 
-| Report | Shows |
-|---|---|
-| Rainfall per Month | the total of every month, newest first |
-| Rainfall per Day | every day with rain in this and last month, newest first |
-| Rainfall per Hour | every hour with rain today and yesterday, newest first |
-| Temperature records | lowest and highest outside temperature ever, with the date; **RESET TEMPERATURE RECORDS** starts only these again |
-| Temperature per Day | daily min / max |
-| Water balance | day by day: rain, evaporation, soil water, the answer (with *Water Balance*) |
+REPORTS has three pages:
+
+| Page | Report | Shows |
+|---|---|---|
+| RAIN | Rainfall per Month | the total of every month, newest first |
+| RAIN | Rainfall per Day | every day with rain in this and last month, newest first |
+| RAIN | Rainfall per Hour | every hour with rain today and yesterday, newest first |
+| TEMPERATURE | Temperature records | lowest and highest outside temperature ever, with the date; **RESET TEMPERATURE RECORDS** starts only these again |
+| TEMPERATURE | Temperature per Day | daily min / max |
+| WATER BALANCE | Water balance | day by day: rain, evaporation, soil water, the answer (with *Water Balance*; tab hidden with *No Irrigation*) |
 
 The **General Log** (what the gauge did, e.g. restarts, WiFi, alerts) is on
 the FILES page as `GeneralLog.txt`.
@@ -143,7 +153,7 @@ result; **TEST IR SENSOR NOW** runs it at once (only with the beam OPEN).
 | | Enable Reboot + Scheduled Reboot @ Time | a daily restart (default 00:05) |
 | | Show Memory & Tasks on ABOUT | technical readout |
 | | Show PC Upload (OTA) on ABOUT | for developers who upload from PlatformIO; off = rows hidden (normal updates are on ABOUT → CHECK FOR UPDATE) |
-| | Show Inside Temperature (HOME, REPORTS) | for a second sensor inside the box |
+| | Show Inside Temperature (HOME, TEMPERATURE) | for a second sensor inside the box |
 | Rain Gauge | Funnel Diameter, Water per Tip, Calibration Water | section 5 |
 | | Tip Debounce (ms) | how long the beam must be steady to count a tip (default 250) |
 | | IR Self-Test every (min, 0 = off) | section 7 |

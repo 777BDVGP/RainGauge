@@ -123,10 +123,13 @@
 // =============================================================================
 	#define PS_HOME       1
 	#define PS_SETTINGS   2
-	#define PS_REPORTS    3
+	#define PS_RAIN       3   // RAIN report        (main row)
 	#define PS_FILES      4
 	#define PS_NTFY       5
 	#define PS_ABOUT      6
+	#define PS_TEMP       7   // TEMPERATURE report (main row)
+	#define PS_WATERBAL   8   // WATER BALANCE report  (main row, hidden for No Irrigation)
+	// SETTINGS / FILES / NTFY / ABOUT sit under OTHER (second row)
 
 // =============================================================================
 // WT_* Table-Builder Type Constants
