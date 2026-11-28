@@ -1,5 +1,5 @@
 {
-  "version": "1.10.6",
+  "version": "1.10.7",
   "bin": "firmware/raingauge.bin",
-  "notes": "HOME irrigation help made clearer: the controller's daily time comes from SETTINGS, 'x% of y mm' shown"
+  "notes": "NTFY page: IR SENSOR TEST table no longer cramped on a phone"
 }

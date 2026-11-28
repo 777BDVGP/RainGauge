@@ -155,7 +155,7 @@ void handleNtfy(AsyncWebServerRequest *request) {
 	// ── IR sensor test — live bucket position, whether a test can run, last result.
 	IrBeamView v = IrBeamNow();
 	appendHtmlStr("<div style='text-align:center;font-weight:800;letter-spacing:2px;color:#0284c7;font-size:15px;margin:14px 0 4px'>IR SENSOR TEST</div>"
-	              "<table>"
+	              "<table class='info'>"   // info: value column may wrap (long "Last result" text squeezed the labels to 1 char wide on a phone)
 	              "<tr><td>Bucket Position (IR beam)</td><td><span id='NTBEAM' style='");
 	appendHtmlStr(v.style.c_str());
 	appendHtmlStr("'>");
